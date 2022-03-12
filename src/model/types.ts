@@ -1,5 +1,5 @@
 
-
+import { Log } from "../utils/types"
 /**
  █░░█ █▀▀ █▀▀ █▀▀█ 　 █▀▄▀█ █▀▀█ █▀▀▄ █░░█ █░░ █▀▀
  █░░█ ▀▀█ █▀▀ █▄▄▀ 　 █░▀░█ █░░█ █░░█ █░░█ █░░ █▀▀
@@ -16,7 +16,9 @@ export interface UserAccount {
     contactNo: string,
     branchName: string | null
     accountType: string,
-    active : string,
+    active: string,
+    lastUpdatedBy: any,
+    createdBy: any,
 }
 
 

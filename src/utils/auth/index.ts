@@ -79,14 +79,15 @@ _.remove(model.user.accountTypes, (type: string) => type !== model.user.accountT
 
 const ip = [inspectAuthHeader, <EHandler>parsePayload]
 export default {
-    any: [...ip],
+    // any: [...ip],
     superAdmin : [...ip, <EHandler> filter(model.user.accountTypes.superAdmin)],
     admin : [...ip, <EHandler> filter(model.user.accountTypes.superAdmin, model.user.accountTypes.adminEditor, model.user.accountTypes.adminViewer)],
     adminEditor : [...ip, <EHandler> filter(model.user.accountTypes.superAdmin, model.user.accountTypes.adminEditor)],
     adminViewer : [...ip, <EHandler> filter(model.user.accountTypes.superAdmin, model.user.accountTypes.adminViewer)],
     bsEditor : [...ip, <EHandler> filter(bsEditorAccessUsers)],
     bsViewer : [...ip, <EHandler> filter(bsViewerAccessUsers)],
-    officer : [...ip, <EHandler> filter(model.user.accountTypes.superAdmin, model.user.accountTypes.officer)],
+    officer: [...ip, <EHandler>filter(model.user.accountTypes.superAdmin, model.user.accountTypes.officer)],
+    any : [...ip, <EHandler>filter(...Object.values(model.user.accountTypes))],
 }
 
 

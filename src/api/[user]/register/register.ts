@@ -81,19 +81,19 @@ const registerUserAccount: Handler = async (req, res) => {
     branchName,
     accountType,
     active: "Active",
-    created: {},
-    updated: {},
+    createdBy: {},
+    lastUpdatedBy: {},
   };
 
   // Log of who is creating the user account
-  let created: Log;
+  let createdBy: Log;
   if (req.user.accountType != model.user.accountTypes.superAdmin) {
-    created = {
+    createdBy = {
       userId: req.user.userId,
       name: req.user.name,
       time: new Date(),
     };
-    userData = { ...userData, created};
+    userData = { ...userData, createdBy};
   }
 
   // Sync model to database

@@ -40,7 +40,7 @@ export abstract class UserModel {
     return await runMongoQuery(async (db: Db) => {
       return await db
         .collection(this.c_userAccount)
-        .updateOne(filter, { $set: updateData }, options);
+        .updateOne(filter, { $set: cleanQuery(updateData) }, options);
     });
   }
   /**
