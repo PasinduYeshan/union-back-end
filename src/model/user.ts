@@ -1,6 +1,6 @@
-import {runQuery, runTrx, TransactionBuilder} from "../utils/dbMan";
-import {MError} from "../utils/dbMan/merror";
-import {AdminAccount, LocalAccount, UserData} from "./types";
+import { Db } from "mongodb";
+import { runMongoQuery, cleanQuery } from "../utils/mongoDB";
+import { UserAccount } from "./types";
 
 /**
  * Transaction Pieces
@@ -13,84 +13,54 @@ import {AdminAccount, LocalAccount, UserData} from "./types";
  * @param localAccount
  */
 export abstract class UserModel {
+  private static c_userAccount = "userAccounts";
 
-    private static TB_userData = "userData"
-    private static TB_localAccount = "localAccount"
-    private static TB_adminAccount = "adminAccount"
+  static accountTypes = {
+    superAdmin: "superAdmin",
+    adminEditor: "adminEditor",
+    adminViewer: "adminViewer",
+    bsEditor: "bsEditor",
+    bsViewer: "bsViewer",
+    officer: "officer",
+  };
 
+  /**
+   * Creators
+   */
+  static async create_UserAccount(userAccount: UserAccount) {
+    return await runMongoQuery(async (db: Db) => {
+      return await db.collection(this.c_userAccount).insertOne(userAccount);
+    });
+  }
 
-    static $add_UserData(userData: UserData): TransactionBuilder {
-        return async trx => {
-            return trx(this.TB_userData).insert(userData);
-        };
-    };
+  /**
+   * Update
+   */
+  static async update_UserAccount(filter: {}, updateData: {}, options: {}) {
+    return await runMongoQuery(async (db: Db) => {
+      return await db
+        .collection(this.c_userAccount)
+        .updateOne(filter, { $set: updateData }, options);
+    });
+  }
+  /**
+   * Getters
+   */
+  // Get user account by username or email
+  static async get_LoginAccount(loginKey: string) {
+    return await runMongoQuery(async (db: Db) => {
+      return await db
+        .collection(this.c_userAccount)
+        .findOne({ $or: [{ username :loginKey }, { email: loginKey }] });
+    });
+  };
 
-    static accountTypes = {
-        local: "Local Account",
-        admin: "Admin Account",
-    }
-
-    /**
-     * Creators
-     */
-    static add_LocalAccount(userData: UserData, accountData: LocalAccount) {
-        return runTrx(async trx =>  {
-            await this.$add_UserData(userData)(trx);
-            return trx(this.TB_localAccount).insert(accountData);
-        });
-    };
-
-    /**
-     * Update
-     */
-    static update_UserDetails(userId: string, data: any) {
-        return runQuery(
-            knex => knex(this.TB_userData).update(data).where({userId})
-        )
-    }
-
-    static update_LocalAccount(userId: string, data: any) {
-        return runQuery(
-            knex => knex(this.TB_localAccount).update(data).where({userId})
-        )
-    }
-
-    /**
-     * Getters
-     */
-    static async get_AdminAccount(username: string): Promise<[MError, AdminAccount]> {
-        return runQuery<AdminAccount>(
-            knex => knex(this.TB_adminAccount).where({username}),
-            {
-                single: true
-            }
-        )
-    }
-
-    static get_LocalAccount(username: string): Promise<[MError, LocalAccount]> {
-        return runQuery<LocalAccount>(
-            knex => knex(this.TB_localAccount).where({username}),
-            {
-                single: true
-            }
-        )
-    }
-
-    static get_LocalAccount_byUserId(userId: string): Promise<[MError, LocalAccount]> {
-        return runQuery<LocalAccount>(
-            knex => knex(this.TB_localAccount).where({userId}),
-            {
-                single: true
-            }
-        )
-    }
-
-    static get_UserData(userId: string): Promise<[MError, UserData]> {
-        return runQuery<UserData>(
-            knex => knex(this.TB_userData).where({userId}),
-            {
-                single: true
-            }
-        )
-    }
+  // Get user account by user id
+  static async get_UserAccount(userId: string) {
+    return await runMongoQuery(async (db: Db) => {
+      return await db
+        .collection(this.c_userAccount)
+        .findOne({ userId});
+    });
+  }
 }

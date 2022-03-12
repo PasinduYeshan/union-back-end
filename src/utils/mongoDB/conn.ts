@@ -1,5 +1,6 @@
 require("dotenv").config();
-import { MongoClient } from "mongodb";
+import { Db, MongoClient } from "mongodb";
+import {DBErrorCode} from "./dbError"
 
 // Mongodb options
 const mongoOptions = {
@@ -7,21 +8,33 @@ const mongoOptions = {
   // tlsCaFile: process.env.MONGODB_CA_FILE,
 };
 
-const dbName = process.env.MONGODB_DB_NAME;
-const uri: string = process.env.MONGO_URI || "mongodb://localhost:27017";
+const dbName = process.env.MONGODB_DB_NAME || "upto";
+const uri: string = process.env.MONGO_URI || "mongodb://127.0.0.1:27017";
+// const uri: string = "mongodb://124.0.0.1:27017";
 const client = new MongoClient(uri, mongoOptions);
 
+let dbInstance: any;
+
 // MongoDB Connection
-async function databaseConnect() {
+export default async function databaseConnect() {
   try {
+    if (dbInstance) {
+      console.log("Requested database connection but already connected");
+      return dbInstance;
+    }
+    // Logging
+    const eventNames = ["commandStarted", "commandSucceeded", "commandFailed"];
+    eventNames.map((eventName) => client.on(eventName, event =>  console.log(`received ${eventName}: ${JSON.stringify(event, null, 2)}`)));
     await client.connect();
     console.log("Connected to MongoDB");
-    const db = client.db(dbName);
-    return db;
-  } catch (err) {
-    console.error(err);
+    dbInstance = client.db(dbName);
+    return dbInstance;
+  } catch (err : any) {
+    console.error("MongoDB Connection Issue: ", err);
+    throw {code : DBErrorCode.DB_CONNECTION, message : err.toString()};
   }
 }
 
-// export default databaseConnect;
-export const mongodb = databaseConnect();
+
+
+

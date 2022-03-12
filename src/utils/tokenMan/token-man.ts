@@ -17,8 +17,8 @@ export class TokenMan {
         // Taking values from environment
         this._accessSecretKey = process.env.JWT_SECRET_ACCESS || generateSecretKey();
         this._refreshSecretKey = process.env.JWT_SECRET_REFRESH || generateSecretKey();
-        this._accessToken_validTime = process.env.JWT_EXP_TIME_ACCESS || '10m';
-        this._refreshToken_validTime = process.env.JWT_EXP_TIME_REFRESH || '1h';
+        this._accessToken_validTime = process.env.JWT_EXP_TIME_ACCESS || '1h';
+        this._refreshToken_validTime = process.env.JWT_EXP_TIME_REFRESH || '24h';
 
         // Create Tables
         this._refreshTokenStore = new Map<any, string>()
@@ -106,7 +106,7 @@ export class TokenMan {
         try {
             const payload = jwt.verify(token, this._accessSecretKey)
             return [null, payload]
-        } catch (e) {
+        } catch (e : any) {
             if (e.name === "TokenExpiredError") {
                 return ["EXPIRED", null];
             } else {

@@ -1,6 +1,7 @@
-import {UserModel} from "./user";
+import { UserModel } from "./user";
 
-export {MErr} from "../utils/dbMan";
+export {DBErrorCode} from "../utils/mongoDB";
+
 export const model = {
     user: UserModel,
 };

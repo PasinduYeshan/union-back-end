@@ -1,9 +1,14 @@
 import { v4 as UUID } from "uuid";
-import { EHandler, Handler } from "../../../utils/types";
+import { EHandler, Handler, Log } from "../../../utils/types";
 import { encrypt_password } from "../../../utils/hasher";
 import { inspectBuilder, body } from "../../../utils/inspect";
-import model, { MErr } from "../../../model";
-import { TokenMan } from "../../../utils/tokenMan";
+import model, { DBErrorCode } from "../../../model";
+require("dotenv").config();
+
+// TODO : Remove sample data
+const superAdminKey = process.env.SUPER_ADMIN_KEY || "yeshan98";
+const superAdminEmail =
+  process.env.SUPER_ADMIN_EMAIL || "pasinduyeshan98@gmail.com";
 
 /**
  * :: STEP 1
@@ -12,83 +17,107 @@ import { TokenMan } from "../../../utils/tokenMan";
 const inspector = inspectBuilder(
   body("username").exists().withMessage("username is required"),
   body("password").exists().withMessage("password is required"),
-  body("firstName").exists().withMessage("firstName is required"),
-  body("lastName").exists().withMessage("lastName is is required"),
-  body("email").exists().isEmail().withMessage("email is required"),
-  body("telephone")
+  body("name").exists().withMessage("name is required"),
+  body("NIC").exists().withMessage("NIC is is required"),
+  body("contactNo")
     .exists()
     .isMobilePhone("any")
-    .withMessage("telephone is required")
+    .withMessage("contact number is required"),
+  body("branchName").optional(),
+  body("accountType")
+    .optional()
+    .isIn([...Object.values(model.user.accountTypes)]),
+  body("security")
+    .custom((value: any, { req }: any) =>
+      req.body.accountType == model.user.accountTypes.superAdmin
+        ? value == superAdminKey
+        : true
+    )
+    .withMessage("You are not allowed to create super admin account"),
+  body("email")
+    .exists()
+    .isEmail()
+    .withMessage("email is required")
+    .custom((value: any, { req }: any) =>
+      req.body.accountType == model.user.accountTypes.superAdmin
+        ? value == superAdminEmail
+        : true
+    )
+    .withMessage("You are not allowed to create super admin account")
 );
 
 /**
  * :: STEP 2
- * Create a new [user] user
+ * Create a new user account -> Super admin, admin, branch secretary, officer
  * @param req body
- *      username
- *      password
- *      firstName
- *      lastName
- *      email
- *      telephone
  * @param res
  *  message
  */
-const addUserDetails: Handler = async (req, res) => {
+const registerUserAccount: Handler = async (req, res) => {
   const { r } = res;
 
   // Setup Data
   const userId = UUID();
-  const { username, password } = req.body;
-  const userData = {
-    userId,
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    telephone: req.body.telephone,
-    accountType: model.user.accountTypes.local,
-  };
-
-  // Sync model to database
-  const [{ code, constraint }] = await model.user.add_LocalAccount(userData, {
+  
+  const {
+    username,
+    password,
+    name,
+    NIC,
+    email,
+    contactNo,
+    branchName,
+    accountType,
+  } = req.body;
+  
+  let userData = {
     userId,
     username,
     password: await encrypt_password(password),
-  });
+    name,
+    NIC,
+    email,
+    contactNo,
+    branchName,
+    accountType,
+    active: "Active",
+    created: {},
+    updated: {},
+  };
 
-  if (code === MErr.NO_ERROR) {
-    await mailer.send_verification_mail(
-      userData.email,
-      TokenMan.getAccessToken({
-        email: userData.email,
-        userId: userData.userId,
-        firstName: userData.firstName,
-      })
-    );
-    r.status
-      .OK()
-      .message("Success")
-      .data({
-        userId,
-      })
-      .send();
-    return;
+  // Log of who is creating the user account
+  let created: Log;
+  if (req.user.accountType != model.user.accountTypes.superAdmin) {
+    created = {
+      userId: req.user.userId,
+      name: req.user.name,
+      time: new Date(),
+    };
+    userData = { ...userData, created};
   }
 
-  if (code === MErr.DUPLICATE_ENTRY) {
-    const message =
-      constraint === "user_data_email_unique"
-        ? "email address is associated with another account. try, login into your account"
-        : // (constraint === "telephone_pkey")? "telephone number is associated with another account":
-          "username is already taken";
-    r.status.BAD_REQ().message(message).send();
+  // Sync model to database
+  const [error, response] = await model.user.create_UserAccount(userData);
+  if (error) {
+    switch (error.code) {
+      case DBErrorCode.DUPLICATE_ENTRY:
+        r.status
+          .BAD_REQ()
+          .message(
+            "Duplicate Data Entry, Check if another user is having the same username or email or NIC"
+          )
+          .send();
+        return;
+      default:
+        r.pb.ISE();
+    }
     return;
   }
-
-  r.pb.ISE();
+  // Send Response
+  r.status.OK().message("User Registered Successfully").send();
 };
 
 /**
  * Request Handler Chain
  */
-export default [inspector, <EHandler>addUserDetails];
+export default [inspector, <EHandler>registerUserAccount];

@@ -4,15 +4,21 @@ import {ResponseBuilder} from "./resp/res-builder";
 export interface Request extends ERequest {
     user: {
         userId: string,
-        accountType: "Local Account" | "Admin Account"
-        firstName: string,
-        lastName: string,
+        username : string,
+        accountType: string,
+        name : string
         email: string,
     }
 }
 
 export interface Response extends EResponse {
     r: ResponseBuilder
+}
+
+export interface Log {
+    userId: string,
+    name: string,
+    time : Date,
 }
 
 export type Handler = (req: Request, res: Response, next: NextFunction) => void

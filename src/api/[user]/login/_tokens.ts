@@ -1,6 +1,6 @@
 import {EHandler, Handler} from "../../../utils/types";
 import {TokenMan} from "../../../utils/tokenMan";
-import model, {MErr} from "../../../model";
+import model, {DBErrorCode} from "../../../model";
 
 /**
  * Response with
@@ -13,8 +13,8 @@ const ServeTokenPair: Handler = async (req, res) => {
     const {userId} = req.body;
 
     // creating payload model
-    const [error, userData] = await model.user.get_UserData(userId);
-    if (error.code !== MErr.NO_ERROR) {
+    const [error, userData] = await model.user.get_UserAccount(userId);
+    if (error) {
         r.pb.ISE();
         return;
     }

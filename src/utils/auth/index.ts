@@ -1,6 +1,8 @@
 import {EHandler, Handler} from "../types";
 import {TokenMan} from "../tokenMan";
-import {inspectBuilder, header} from "../inspect";
+import { inspectBuilder, header } from "../inspect";
+import model from "../../model";
+var _ = require('lodash');
 
 /**
  * :: STEP 1
@@ -45,13 +47,13 @@ const parsePayload: Handler = (req, res, next) => {
 };
 
 
-type AccountType = "Local Account" | "Admin Account"
+// type AccountType : string;
 
 /**
  * :: STEP 3 Builder
  * @param types
  */
-function filter(...types: AccountType[]): Handler {
+function filter(...types: string []): Handler {
     return (req, res, next) => {
         const {r} = res;
 
@@ -70,10 +72,22 @@ function filter(...types: AccountType[]): Handler {
 /**
  * Request Handler Chain
  */
+ const bsEditorAccessUsers = 
+     _.remove(model.user.accountTypes, (type: string) => type !== model.user.accountTypes.officer && type !== model.user.accountTypes.bsViewer)
+const bsViewerAccessUsers = 
+_.remove(model.user.accountTypes, (type: string) => type !== model.user.accountTypes.officer)
 
 const ip = [inspectAuthHeader, <EHandler>parsePayload]
 export default {
     any: [...ip],
-    regular: [...ip, <EHandler>filter("Local Account")],
-    admin: [...ip, <EHandler>filter("Admin Account")],
+    superAdmin : [...ip, <EHandler> filter(model.user.accountTypes.superAdmin)],
+    admin : [...ip, <EHandler> filter(model.user.accountTypes.superAdmin, model.user.accountTypes.adminEditor, model.user.accountTypes.adminViewer)],
+    adminEditor : [...ip, <EHandler> filter(model.user.accountTypes.superAdmin, model.user.accountTypes.adminEditor)],
+    adminViewer : [...ip, <EHandler> filter(model.user.accountTypes.superAdmin, model.user.accountTypes.adminViewer)],
+    bsEditor : [...ip, <EHandler> filter(bsEditorAccessUsers)],
+    bsViewer : [...ip, <EHandler> filter(bsViewerAccessUsers)],
+    officer : [...ip, <EHandler> filter(model.user.accountTypes.superAdmin, model.user.accountTypes.officer)],
 }
+
+
+

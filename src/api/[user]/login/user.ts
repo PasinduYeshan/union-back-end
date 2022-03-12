@@ -1,6 +1,6 @@
 import {compare} from "bcrypt";
 import {EHandler, Handler} from "../../../utils/types";
-import model, {MErr} from "../../../model";
+import model, {DBErrorCode} from "../../../model";
 import {body, inspectBuilder} from "../../../utils/inspect";
 
 /**
@@ -19,35 +19,30 @@ const inspector = inspectBuilder(
 const validateCredentials: Handler = async (req, res, next) => {
     const {r} = res;
     const {username, password} = req.body;
-
-    const [error, account] = await model.user.get_AdminAccount(username);
-
-    if (error.code === MErr.NO_ERROR) {
-
-
-        // password verification
-        if (!await compare(password, account.password)) {
-            r.status.UN_AUTH()
-                .message("Incorrect username or password")
-                .send();
-            return;
-        }
-
-        req.body.userId = account.userId; // bind userId to request
-        req.body.userType = "Administrator"
-        next() // send pair of tokens
+    const [error, account] = await model.user.get_LoginAccount(username);
+    if (error) {
+        r.pb.ISE();
         return;
     }
-
-    if (error.code === MErr.NOT_FOUND) {
+    
+    if (!account) {
         r.status.NOT_FOUND()
-            .message("Couldn't found admin user user")
+            .message("Couldn't found user with username or email")
             .send();
         return;
     }
 
-    r.pb.ISE()
-        .send();
+    // password verification
+    if (!await compare(password, account.password)) {
+        r.status.UN_AUTH()
+            .message("Incorrect username or password")
+            .send();
+        return;
+    }
+    req.body.userId = account.userId; // bind userId to request
+    // req.body.userType 
+    next(); // send pair of tokens
+    return;
 };
 
 /**
