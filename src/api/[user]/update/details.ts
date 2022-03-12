@@ -33,9 +33,9 @@ const profileInspector = inspectBuilder(
 );
 
 // Get account types except super admin account
-const accountT = _.remove(
-  model.user.accountTypes,
-  (o: string) => o == "superAdmin"
+const accountT = _.pullAll(
+  Object.values(model.user.accountTypes),
+  [model.user.accountTypes.superAdmin]
 );
 
 const accountInspector = inspectBuilder(
@@ -109,7 +109,6 @@ const updateProfile: Handler = async (req, res) => {
  */
 const updateUserAccount: Handler = async (req, res) => {
   const { r } = res;
-
   // Setup Data
   const updaterName = req.user.name;
   const updaterUserId = req.user.userId;
