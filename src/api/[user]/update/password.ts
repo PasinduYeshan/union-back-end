@@ -1,6 +1,6 @@
 import {EHandler, Handler} from "../../../utils/types";
 import {inspectBuilder, body, param} from "../../../utils/inspect";
-import model, {MErr} from "../../../model";
+import model, {DBErrorCode} from "../../../model";
 import {encrypt_password} from "../../../utils/hasher";
 import {compare} from "bcrypt";
 
@@ -24,31 +24,35 @@ const validateCredentials: Handler = async (req, res, next) => {
     const userId = req.params.userId || req.user.userId
     const {currentPassword} = req.body;
 
-    const [error, account] = await model.user.get_LocalAccount_byUserId(userId);
-
-    if (error.code === MErr.NO_ERROR) {
-        // password verification
-        if (!await compare(currentPassword, account.password)) {
-            r.status.UN_AUTH()
-                .message("Current password is incorrect")
-                .send();
-            return;
-        }
-
-        req.body.userId = account.userId; // bind userId to request
-        next() // send pair of tokens
+    const [error, response] = await model.user.get_UserAccount(userId);
+    if (error) {
+        r.pb.ISE();
         return;
     }
+    
+    // If no user found
+    if (response.matchedCount == 0) {
+    r.status.NOT_FOUND().message("User not found").send();
+    return;
+    }
 
-    if (error.code === MErr.NOT_FOUND) {
-        r.status.NOT_FOUND()
-            .message("User doesn't exists")
+   
+    // password verification
+    if (!await compare(currentPassword, response.password)) {
+        r.status.UN_AUTH()
+            .message("Current password is incorrect")
             .send();
         return;
     }
+    if (req.body.password == response.password) {
+        r.status.BAD_REQ()
+            .message("You can't update the same password!")
+            .send();
+    }
 
-    r.pb.ISE()
-        .send();
+    req.body.userId = response.userId; // bind userId to request
+    next() // send pair of tokens
+   
 };
 
 
@@ -67,16 +71,15 @@ const updateUserData: Handler = async (req, res) => {
     };
 
     // Sync model to database
-    const [{code}] = await model.user.update_LocalAccount(userId, userAccount)
-
-    if (code === MErr.NO_ERROR) {
-        r.status.OK()
-            .message("Success")
-            .send();
+    const [error, response] = await model.user.update_UserAccount({userId}, userAccount)
+    
+    if (error) {
+        r.pb.ISE();
         return;
     }
-
-    r.pb.ISE();
+    r.status.OK()
+        .message("Success")
+        .send();
 };
 
 

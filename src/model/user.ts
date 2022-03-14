@@ -36,7 +36,7 @@ export abstract class UserModel {
   /**
    * Update
    */
-  static async update_UserAccount(filter: {}, updateData: {}, options: {}) {
+  static async update_UserAccount(filter: {}, updateData: {}, options = {}) {
     return await runMongoQuery(async (db: Db) => {
       return await db
         .collection(this.c_userAccount)

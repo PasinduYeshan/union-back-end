@@ -4,6 +4,7 @@ import auth from "../../utils/auth";
 import registerUserAccount from "./register/register";
 import loginUserAccount from "./login/user";
 import updateUser from "./update/details";
+import updatePassword from "./update/password";
 
 import avatar from "./update/avatar";
 import password from "./update/password";
@@ -21,11 +22,15 @@ rUser.post("/login", loginUserAccount);
 
 // Register Users
 rUser.post("/register-sa", registerUserAccount);
-rUser.post("/register", auth.admin, registerUserAccount); // Only admin can register other users
+rUser.post("/register", auth.adminEditor, registerUserAccount); // Only admin can register other users
 
 // Update User Account
 rUser.put("/update/:userId", auth.admin, updateUser.account);
 rUser.put("/update-profile", auth.any, updateUser.profile);
+
+// Update password
+rUser.put('/update-password', auth.any, updatePassword);
+rUser.put('/change-password/:userId', auth.adminEditor, updatePassword);
 
 // rUser.put("/set-avatar/:userId*?", auth.any, avatar)
 // rUser.put("/set-password/:userId*?", auth.any, password)
