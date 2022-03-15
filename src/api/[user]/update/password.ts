@@ -60,7 +60,7 @@ const validateCredentials: Handler = async (req, res, next) => {
  * :: STEP 3
  * Update user data
  */
-const updateUserData: Handler = async (req, res) => {
+const updateUserPassword: Handler = async (req, res) => {
     const {r} = res;
 
     // Setup Data
@@ -86,4 +86,4 @@ const updateUserData: Handler = async (req, res) => {
 /**
  * Request Handler Chain
  */
-export default [inspector, <EHandler>validateCredentials, <EHandler>updateUserData]
+export default [inspector, <EHandler>validateCredentials, <EHandler>updateUserPassword]
