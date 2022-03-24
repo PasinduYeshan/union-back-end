@@ -5,7 +5,8 @@ import registerUserAccount from "./register/register";
 import loginUserAccount from "./login/user";
 import updateUser from "./update/details";
 import updatePassword from "./update/password";
-import forgotPasswordHandlers from "./update/forgot-password";
+import forgotPassword from "./update/forgot-password";
+import resetPassword from "./update/reset-password";
 
 import avatar from "./update/avatar";
 import password from "./update/password";
@@ -30,11 +31,12 @@ rUser.put("/update/:userId", auth.admin, updateUser.account);
 rUser.put("/update-profile", auth.any, updateUser.profile);
 
 // Update password
-rUser.put('/update-password', auth.any, updatePassword);
-rUser.put('/change-password/:userId', auth.adminEditor, updatePassword);
+rUser.put("/update-password", auth.any, updatePassword);
+rUser.put("/change-password/:userId", auth.adminEditor, updatePassword);
 
-// Forget password 
-rUser.post('/forgot-password',forgotPasswordHandlers.sendPasswordResetEmail);
+// Forget password
+rUser.post("/forgot-password", forgotPassword);
+rUser.put("/reset-password", resetPassword);
 
 // rUser.put("/set-avatar/:userId*?", auth.any, avatar)
 // rUser.put("/set-password/:userId*?", auth.any, password)

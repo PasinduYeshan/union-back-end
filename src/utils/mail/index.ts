@@ -1,12 +1,10 @@
-"use strict";
 require("dotenv").config(); // read .env variables (for development)
 import nodemailer from "nodemailer";
 import handlebars from "handlebars";
 import fs from "fs";
 import path from "path";
 
-const senderEmail =
-  process.env.EMAIL_ADDRESS;
+const senderEmail = process.env.EMAIL_ADDRESS;
 const emailPassword = process.env.EMAIL_PASSWORD;
 
 // create reusable transporter object using the default SMTP transport
@@ -27,7 +25,6 @@ export async function sendEmail(
   html = ""
 ) {
   try {
-    // send mail with defined transport object
     let info = await transporter.sendMail({
       from: `From UPTO <${senderEmail}>`, // sender address
       to: email, // list of receivers
@@ -49,7 +46,7 @@ export async function sendEmailTemplate(
   payload: any
 ) {
   try {
-    const source = fs.readFileSync(path.join(__dirname, template), "utf8");
+    const source = fs.readFileSync(path.join(__dirname, "./templates/",template), "utf8");
     const compiledTemplate = handlebars.compile(source);
     const options = {
       from: senderEmail,
@@ -63,7 +60,3 @@ export async function sendEmailTemplate(
     console.log("Sending Template email error : ", error);
   }
 }
-
-// Export templates
-import templates from "./templates";
-export { templates };

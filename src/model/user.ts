@@ -43,6 +43,15 @@ export abstract class UserModel {
         .updateOne(filter, { $set: cleanQuery(updateData) }, options);
     });
   }
+
+  static async update_UserAccountAndReturnDoc(filter: {}, updateData: {}, options = {}) {
+    return await runMongoQuery(async (db: Db) => {
+      return await db
+        .collection(this.c_userAccount)
+        .findOneAndUpdate(filter, { $set: cleanQuery(updateData) }, { ...options, returnDocument: "after" });
+    });
+  };
+
   /**
    * Getters
    */

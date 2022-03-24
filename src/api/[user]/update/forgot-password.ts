@@ -1,10 +1,9 @@
 import { EHandler, Handler } from "../../../utils/types";
+import { v4 as UUID } from "uuid";
 import { inspectBuilder, body, param } from "../../../utils/inspect";
-import model, { DBErrorCode } from "../../../model";
-import { encrypt_password } from "../../../utils/hasher";
-import { sendEmail, sendEmailTemplate, templates } from "../../../utils/mail";
+import model from "../../../model";
+import {  sendEmailTemplate } from "../../../utils/mail";
 import { TokenMan } from "../../../utils/tokenMan";
-let ejs = require("ejs");
 
 /**
  * Step 1 - Validation
@@ -14,7 +13,7 @@ const forgotPasswordInspector = inspectBuilder(
 );
 
 /**
- * Step 2
+ * Step 2 -  Send Password Reset Email
  */
 const sendPasswordResetEmail: Handler = async (req, res, next) => {
   const { r } = res;
@@ -26,32 +25,43 @@ const sendPasswordResetEmail: Handler = async (req, res, next) => {
     r.pb.ISE();
     return;
   }
+  // Send response
   r.status
     .OK()
     .message("Password reset link will be sent to your email shortly.")
     .send();
 
-  //If no user exists dont send email
+  // If no user exists dont send email
   if (!response) {
     return;
   }
 
-  // Set token containing user id and expiry time
+  const resetPasswordId = UUID();
+
+  // Store resetPasswordId in database
+  const [error2, response2] = await model.user.update_UserAccount(
+    {
+      userId: response.userId,
+    },
+    { resetPasswordId }
+  );
+  // If update failed send internal server error
+  if (error2) {
+    r.pb.ISE();
+    return;
+  }
+
+  // Create token with resetPasswordId
   const payload = {
-    userId: response.userId,
-    createdAt: new Date(),
+    resetPasswordId,
   };
   const resetPasswordToken = TokenMan.getResetPasswordToken(payload);
-  const url = `${process.env.PASSWORD_RESET_URL}?rt=${resetPasswordToken}`;
-
-  // Get ejs template
-  // const html = await ejs.renderFile(__dirname + "/passwordResetEmail.ejs", {
-  //   url,
-  // });
 
   try {
+    const url = `${process.env.PASSWORD_RESET_PAGE_URL}?rt=${resetPasswordToken}`;
+    console.log(resetPasswordToken, "    ", url);
     await sendEmailTemplate(
-      "./templates/resetPasswordEmail.handlebars",
+      "resetPasswordEmail.handlebars",
       response.email,
       "UPTO Password Reset",
       { url, name: response.name }
@@ -61,11 +71,4 @@ const sendPasswordResetEmail: Handler = async (req, res, next) => {
   }
 };
 
-const forgotPasswordHandlers = {
-  sendPasswordResetEmail: [
-    forgotPasswordInspector,
-    <EHandler>sendPasswordResetEmail,
-  ],
-};
-
-export default forgotPasswordHandlers;
+export default [ forgotPasswordInspector, <EHandler> sendPasswordResetEmail,];
