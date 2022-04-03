@@ -4,6 +4,7 @@ import {rBuilder} from "../utils/resp";
 
 import rUser from "./[user]"
 import rMeta from "./[meta]";
+import rMember from "./[member]";
 
 export const rApi = Router();
 
@@ -16,6 +17,7 @@ rApi.get("/", cAbout);
 // Routers
 rApi.use("/user", rUser)
 rApi.use("/meta", rMeta)
+rApi.use("/member", rMember)
 
 // Router
 export default rApi

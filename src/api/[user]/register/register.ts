@@ -5,10 +5,10 @@ import { inspectBuilder, body } from "../../../utils/inspect";
 import model, { DBErrorCode } from "../../../model";
 require("dotenv").config();
 
-// TODO : Remove sample data
-const superAdminKey = process.env.SUPER_ADMIN_KEY || "yeshan98";
-const superAdminEmail =
-  process.env.SUPER_ADMIN_EMAIL || "pasinduyeshan98@gmail.com";
+const superAdminKey = process.env.SUPER_ADMIN_KEY || "";
+const saEmails = process.env.SUPER_ADMIN_EMAIL || "";
+
+const superAdminEmails = saEmails ? saEmails.split(",") : [];
 
 /**
  * :: STEP 1
@@ -40,7 +40,7 @@ const inspector = inspectBuilder(
     .withMessage("email is required")
     .custom((value: any, { req }: any) =>
       req.body.accountType == model.user.accountTypes.superAdmin
-        ? value == superAdminEmail
+        ? superAdminEmails.includes(value)
         : true
     )
     .withMessage("You are not allowed to create super admin account")
@@ -58,7 +58,7 @@ const registerUserAccount: Handler = async (req, res) => {
 
   // Setup Data
   const userId = UUID();
-  
+
   const {
     username,
     password,
@@ -69,7 +69,7 @@ const registerUserAccount: Handler = async (req, res) => {
     branchName,
     accountType,
   } = req.body;
-  
+
   let userData = {
     userId,
     username,
@@ -93,7 +93,7 @@ const registerUserAccount: Handler = async (req, res) => {
       name: req.user.name,
       time: new Date(),
     };
-    userData = { ...userData, createdBy};
+    userData = { ...userData, createdBy };
   }
 
   // Sync model to database

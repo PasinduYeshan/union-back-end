@@ -57,7 +57,6 @@ const parsePayload: Handler = (req, res, next) => {
 function filter(...types: string[]): Handler {
   return (req, res, next) => {
     const { r } = res;
-
     if (types.includes(req.user.accountType)) {
       next();
       return;
@@ -110,8 +109,8 @@ export default {
       )
     ),
   ],
-  bsEditor: [...ip, <EHandler>filter(bsEditorAccessUsers)],
-  bsViewer: [...ip, <EHandler>filter(bsViewerAccessUsers)],
+  bsEditor: [...ip, <EHandler>filter(...bsEditorAccessUsers)],
+  bsViewer: [...ip, <EHandler>filter(...bsViewerAccessUsers)],
   officer: [
     ...ip,
     <EHandler>(

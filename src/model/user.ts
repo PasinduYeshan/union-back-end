@@ -1,5 +1,6 @@
 import { Db } from "mongodb";
-import { runMongoQuery, cleanQuery } from "../utils/mongoDB";
+import { runMongoQuery } from "../utils/mongoDB";
+import { cleanQuery } from "../utils/functions";
 import { UserAccount } from "./types";
 
 /**
@@ -69,7 +70,7 @@ export abstract class UserModel {
     return await runMongoQuery(async (db: Db) => {
       return await db
         .collection(this.c_userAccount)
-        .findOne({ userId});
+        .findOne({ userId}, { projection: { password: 0, resetPasswordId : 0, _id : 0 } });
     });
   }
 }
