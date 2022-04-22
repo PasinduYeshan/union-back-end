@@ -21,5 +21,3 @@ export interface UserAccount {
     createdBy: any,
 }
 
-
-

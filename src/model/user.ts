@@ -1,5 +1,5 @@
 import { Db } from "mongodb";
-import { runMongoQuery } from "../utils/mongoDB";
+import { runMongoQuery, DBConfigTypes } from "../utils/mongoDB";
 import { cleanQuery } from "../utils/functions";
 import { UserAccount } from "./types";
 
@@ -38,39 +38,107 @@ export abstract class UserModel {
    * Update
    */
   static async update_UserAccount(filter: {}, updateData: {}, options = {}) {
-    return await runMongoQuery(async (db: Db) => {
-      return await db
-        .collection(this.c_userAccount)
-        .updateOne(filter, { $set: cleanQuery(updateData) }, options);
-    });
+    return await runMongoQuery(
+      async (db: Db) => {
+        return await db
+          .collection(this.c_userAccount)
+          .updateOne(filter, { $set: cleanQuery(updateData) }, options);
+      },
+      { type: DBConfigTypes.UPDATE_ONE }
+    );
   }
 
-  static async update_UserAccountAndReturnDoc(filter: {}, updateData: {}, options = {}) {
-    return await runMongoQuery(async (db: Db) => {
-      return await db
-        .collection(this.c_userAccount)
-        .findOneAndUpdate(filter, { $set: cleanQuery(updateData) }, { ...options, returnDocument: "after" });
-    });
-  };
+  static async update_UserAccountAndReturnDoc(
+    filter: {},
+    updateData: {},
+    options = {}
+  ) {
+    return await runMongoQuery(
+      async (db: Db) => {
+        return await db
+          .collection(this.c_userAccount)
+          .findOneAndUpdate(
+            filter,
+            { $set: cleanQuery(updateData) },
+            { ...options, returnDocument: "after" }
+          );
+      },
+      { type: DBConfigTypes.UPDATE_ONE }
+    );
+  }
 
   /**
    * Getters
    */
   // Get user account by username or email
   static async get_LoginAccount(loginKey: string) {
-    return await runMongoQuery(async (db: Db) => {
-      return await db
-        .collection(this.c_userAccount)
-        .findOne({ $or: [{ username :loginKey }, { email: loginKey }] });
-    });
-  };
+    return await runMongoQuery(
+      async (db: Db) => {
+        return await db
+          .collection(this.c_userAccount)
+          .findOne({ $or: [{ username: loginKey }, { email: loginKey }] });
+      },
+      { type: DBConfigTypes.REQUIRED_ONE }
+    );
+  }
 
   // Get user account by user id
   static async get_UserAccount(userId: string) {
+    return await runMongoQuery(
+      async (db: Db) => {
+        return await db
+          .collection(this.c_userAccount)
+          .findOne(
+            { userId },
+            { projection: { password: 0, resetPasswordId: 0, _id: 0 } }
+          );
+      },
+      { type: DBConfigTypes.REQUIRED_ONE }
+    );
+  }
+
+  // Get user account by accountType
+  static async get_UserAccounts(accountTypes: string[]) {
     return await runMongoQuery(async (db: Db) => {
-      return await db
-        .collection(this.c_userAccount)
-        .findOne({ userId}, { projection: { password: 0, resetPasswordId : 0, _id : 0 } });
+      return db.collection(this.c_userAccount).find(
+        {
+          $and: [{ accountType: { $in: accountTypes } }, { active: "Active" }],
+        },
+        {
+          projection: {
+            password: 0,
+            resetPasswordId: 0,
+            _id: 0,
+            createdBy: 0,
+            lastUpdatedBy: 0,
+          },
+        }
+      );
+    });
+  }
+
+  // Get user account by accountType
+  static async get_UserAccountsSuperAdmin(
+    accountTypes: string[],
+    email?: string,
+    name?: string
+  ) {
+    return await runMongoQuery(async (db: Db) => {
+      return db.collection(this.c_userAccount).find(
+        {
+          $or: [
+            { accountType: { $in: accountTypes } },
+            { name: `/${name}/` },
+            { email: `/${email}/` },
+          ],
+        },
+        {
+          sort: { name: 1 },
+          projection: {
+            password: 0,
+          },
+        }
+      );
     });
   }
 }

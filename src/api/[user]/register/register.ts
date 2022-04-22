@@ -56,6 +56,14 @@ const inspector = inspectBuilder(
 const registerUserAccount: Handler = async (req, res) => {
   const { r } = res;
 
+  // Check if users except super admin are registered by unauthorized users.
+  if (
+    req.body.accountType != model.user.accountTypes.superAdmin &&
+    req.user == null
+  ) {
+    r.status.UN_AUTH().message("You are not allowed to create users").send();
+  }
+
   // Setup Data
   const userId = UUID();
 
@@ -87,7 +95,10 @@ const registerUserAccount: Handler = async (req, res) => {
 
   // Log of who is creating the user account
   let createdBy: Log;
-  if (req.user.accountType != model.user.accountTypes.superAdmin) {
+  if (
+    req.user != null &&
+    req.user.accountType != model.user.accountTypes.superAdmin
+  ) {
     createdBy = {
       userId: req.user.userId,
       name: req.user.name,

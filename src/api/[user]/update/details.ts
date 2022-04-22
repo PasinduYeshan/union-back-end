@@ -33,10 +33,9 @@ const profileInspector = inspectBuilder(
 );
 
 // Get account types except super admin account
-const accountT = _.pullAll(
-  Object.values(model.user.accountTypes),
-  [model.user.accountTypes.superAdmin]
-);
+const accountT = _.pullAll(Object.values(model.user.accountTypes), [
+  model.user.accountTypes.superAdmin,
+]);
 
 const accountInspector = inspectBuilder(
   body("name").optional(),
@@ -90,13 +89,13 @@ const updateProfile: Handler = async (req, res) => {
   );
 
   if (error) {
-    r.pb.ISE();
-    return;
-  }
-  // If no user found
-  if (response.matchedCount == 0) {
-    r.status.NOT_FOUND().message("User not found").send();
-    return;
+    if (error.code == DBErrorCode.NOT_FOUND) {
+      r.status.NOT_FOUND().message("User not found").send();
+      return;
+    } else {
+      r.pb.ISE();
+      return;
+    }
   }
 
   r.status.OK().message("Profile updated successfully").send();
@@ -149,7 +148,7 @@ const updateUserAccount: Handler = async (req, res) => {
     return;
   }
 
-   // If no user found
+  // If no user found
   if (response.matchedCount == 0) {
     r.status.NOT_FOUND().message("User not found").send();
     return;

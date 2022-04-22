@@ -7,6 +7,7 @@ import updateUser from "./update/details";
 import updatePassword from "./update/password";
 import forgotPassword from "./update/forgot-password";
 import resetPassword from "./update/reset-password";
+import { getUsersByAccountType } from "./get/get_users";
 
 import avatar from "./update/avatar";
 import password from "./update/password";
@@ -15,8 +16,6 @@ import get_details from "./get_details";
 import refresh from "./login/refresh";
 
 const rUser = Router();
-
-// rUser.get('/details', auth.any, get_details)
 
 // User Login
 rUser.post("/login", loginUserAccount);
@@ -37,6 +36,9 @@ rUser.put("/change-password/:userId", auth.adminEditor, updatePassword);
 // Forget password
 rUser.post("/forgot-password", forgotPassword);
 rUser.put("/reset-password", resetPassword);
+
+// Get users
+rUser.get("/get-active-users", auth.admin, getUsersByAccountType);
 
 // rUser.put("/set-avatar/:userId*?", auth.any, avatar)
 // rUser.put("/set-password/:userId*?", auth.any, password)
