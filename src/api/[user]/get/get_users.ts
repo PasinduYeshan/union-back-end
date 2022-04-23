@@ -40,13 +40,13 @@ const getUserAccountsByAccountType: Handler = async (req, res) => {
             accountTypes = [model.user.accountTypes.adminEditor, model.user.accountTypes.adminViewer];
             break;
         default:
-            accountTypes = [allowedAccountTypes];
+            accountTypes = allowedAccountTypes;
             break;
     }
 
-  // Sync model to database (filter, update, options)
+  // Get user accounts from the database
   const [error, response] = await model.user.get_UserAccounts(accountTypes);
-
+  console.log( response);
   if (error) {
     if (error.code == DBErrorCode.NOT_FOUND) {
       r.status.NOT_FOUND().message("User not found").send();
@@ -57,7 +57,8 @@ const getUserAccountsByAccountType: Handler = async (req, res) => {
     }
   }
 
-  r.status.OK().message("User accounts").data(response.toArray()).send();
+  // response is and pointer therefore it is converted to array
+  r.status.OK().message("User accounts").data(response).send();
 };
 
 /**

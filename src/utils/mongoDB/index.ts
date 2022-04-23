@@ -9,6 +9,7 @@ export interface DBConfig {
 export enum DBConfigTypes {
     UPDATE_ONE,
     REQUIRED_ONE,
+    FIND_MANY,
 }
 
 export  {databaseConnect} ;

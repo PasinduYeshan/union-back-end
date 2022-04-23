@@ -198,7 +198,6 @@ const updateMember: Handler = async (req, res) => {
       return;
     }
   } else {
-    console.log(response);
     if (response.matchedCount === 0) {
       r.status.NOT_FOUND().message("Member not found").send();
       return;

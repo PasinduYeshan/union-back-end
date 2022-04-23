@@ -50,9 +50,8 @@ export abstract class MemberModel {
 
   static async get_Members(filters: {}) {
     const query = cleanQuery(filters);
-    console.log(query);
     return await runMongoQuery(async (db: Db) => {
       return await db.collection(this.c_member).find({ $and: query }).toArray();
-    });
+    }, { type: DBConfigTypes.FIND_MANY });
   }
 }

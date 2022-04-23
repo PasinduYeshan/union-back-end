@@ -59,7 +59,6 @@ const sendPasswordResetEmail: Handler = async (req, res, next) => {
 
   try {
     const url = `${process.env.PASSWORD_RESET_PAGE_URL}?rt=${resetPasswordToken}`;
-    console.log(resetPasswordToken, "    ", url);
     await sendEmailTemplate(
       "resetPasswordEmail.handlebars",
       response.email,

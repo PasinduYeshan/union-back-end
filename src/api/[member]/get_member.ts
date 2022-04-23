@@ -34,7 +34,6 @@ const findMultipleMembers: Handler = async (req, res) => {
     const { r } = res;
     const { oldNIC, newNIC } = setQueryValues(req.query);
     const [err, response] = await model.member.get_MemberByNIC(oldNIC, newNIC);
-    console.log(err, response);
     if (err) {
         r.pb.ISE()
     } else {
