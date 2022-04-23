@@ -1,5 +1,5 @@
 import { Db } from "mongodb";
-import { runMongoQuery } from "../utils/mongoDB";
+import { runMongoQuery, DBConfigTypes } from "../utils/mongoDB";
 import { cleanQuery } from "../utils/functions";
 import { UserAccount } from "./types";
 
@@ -49,7 +49,7 @@ export abstract class MemberModel {
     const query = cleanQuery(filters);
     console.log(query);
     return await runMongoQuery(async (db: Db) => {
-      return await db.collection(this.c_member).find({ $and: query }).toArray();
-    });
+      return db.collection(this.c_member).find({ $and: query });
+    }, { type: DBConfigTypes.FIND_MANY });
   }
 }

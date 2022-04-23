@@ -88,7 +88,7 @@ const registerUserAccount: Handler = async (req, res) => {
     contactNo,
     branchName,
     accountType,
-    active: "Active",
+    status: "Active",
     createdBy: {},
     lastUpdatedBy: {},
   };

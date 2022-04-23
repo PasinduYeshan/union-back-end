@@ -69,12 +69,18 @@ function filter(...types: string[]): Handler {
 /**
  * Request Handler Chain
  */
-const bsEditorAccessUsers = _.pullAll(Object.values(model.user.accountTypes), [
+
+// Get users for access Levels
+ const bsEditorAccessUsers = _.pullAll(Object.values(model.user.accountTypes), [
   model.user.accountTypes.officer,
   model.user.accountTypes.bsViewer,
 ]);
 const bsViewerAccessUsers = _.pullAll(Object.values(model.user.accountTypes), [
   model.user.accountTypes.officer,
+]);
+const officerAccessUsers = _.pullAll(Object.values(model.user.accountTypes), [
+  model.user.accountTypes.bsEditor,
+  model.user.accountTypes.bsViewer
 ]);
 
 const ip = [inspectAuthHeader, <EHandler>parsePayload];
@@ -115,8 +121,7 @@ export default {
     ...ip,
     <EHandler>(
       filter(
-        model.user.accountTypes.superAdmin,
-        model.user.accountTypes.officer
+       ...officerAccessUsers
       )
     ),
   ],

@@ -91,26 +91,31 @@ export abstract class UserModel {
       { type: DBConfigTypes.REQUIRED_ONE }
     );
   }
-  
+
   // Get user account by accountType
-  static async get_UserAccounts(accountTypes: string[]) : Promise<any> {
-    return await runMongoQuery(async (db: Db) => {
-      return db.collection(this.c_userAccount).find(
-        {
-          // $and: [{ accountType: { $in: accountTypes } }, { active: "Active" }],
-          accountType: { $in: accountTypes },
-        },
-        {
-          projection: {
-            password: 0,
-            // resetPasswordId: 0,
-            _id: 0,
-            createdBy: 0,
-            lastUpdatedBy: 0,
+  static async get_UserAccounts(
+    accountTypes: string[],
+    status: string | null = "Active"
+  ): Promise<any> {
+    return await runMongoQuery(
+      async (db: Db) => {
+        return db.collection(this.c_userAccount).find(
+          {
+            $and: [{ accountType: { $in: accountTypes } }, { status: status }],
           },
-        }
-      );
-    }, { type: DBConfigTypes.FIND_MANY });
+          {
+            projection: {
+              password: 0,
+              resetPasswordId: 0,
+              _id: 0,
+              createdBy: 0,
+              lastUpdatedBy: 0,
+            },
+          }
+        );
+      },
+      { type: DBConfigTypes.FIND_MANY }
+    );
   }
 
   // Get user account by accountType

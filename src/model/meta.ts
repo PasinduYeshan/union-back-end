@@ -1,4 +1,4 @@
-import { Db } from "mongodb";
+import { Db , ObjectId} from "mongodb";
 import { runMongoQuery, DBConfig, DBConfigTypes } from "../utils/mongoDB";
 import { cleanQuery } from "../utils/functions";
 import { UserAccount } from "./types";
@@ -8,27 +8,29 @@ import { UserAccount } from "./types";
  * @param userData
  * @param localAccount
  */
-export abstract class MemberModel {
-  private static c_member = "members";
+export abstract class MetaModel {
+  private static c_branches = "branches";
 
   /*
    * Creators
    */
+  // Add multiple branches
   static async add_Branches(branchData: any) {
     return await runMongoQuery(async (db: Db) => {
-      return await db.collection(this.c_member).insertMany(branchData);
+      return db.collection(this.c_branches).insertMany(branchData);
     });
   }
 
   /*
    * Update
    */
+  // Update single branch
   static async update_Branch(branchID: string, updateData: {}, options = {}) {
     return await runMongoQuery(
       async (db: Db) => {
-        return await db
-          .collection(this.c_member)
-          .updateOne({ branchID }, { $set: cleanQuery(updateData) });
+        return db
+          .collection(this.c_branches)
+          .updateOne({ _id : new ObjectId(branchID) }, { $set: cleanQuery(updateData) });
       },
       { type: DBConfigTypes.UPDATE_ONE }
     );
@@ -37,21 +39,11 @@ export abstract class MemberModel {
   /*
    * Getters
    */
-  static async get_MemberByNIC(oldNIC: string = "", newNIC: string = "") {
-    return await runMongoQuery(async (db: Db) => {
-      return await db
-        .collection(this.c_member)
-        .findOne(
-          { $or: [{ oldNIC: oldNIC }, { newNIC: newNIC }] },
-          { projection: { _id: 0 } }
-        );
-    });
-  }
 
-  static async get_Members(filters: {}) {
-    const query = cleanQuery(filters);
+  // Get all the branches
+  static async get_Branches() {
     return await runMongoQuery(async (db: Db) => {
-      return await db.collection(this.c_member).find({ $and: query }).toArray();
+      return db.collection(this.c_branches).find();
     }, { type: DBConfigTypes.FIND_MANY });
   }
 }
