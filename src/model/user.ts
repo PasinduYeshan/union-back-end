@@ -132,22 +132,25 @@ export abstract class UserModel {
     email?: string,
     name?: string
   ) {
-    return await runMongoQuery(async (db: Db) => {
-      return db.collection(this.c_userAccount).find(
-        {
-          $or: [
-            { accountType: { $in: accountTypes } },
-            { name: `/${name}/` },
-            { email: `/${email}/` },
-          ],
-        },
-        {
-          sort: { name: 1 },
-          projection: {
-            password: 0,
+    return await runMongoQuery(
+      async (db: Db) => {
+        return db.collection(this.c_userAccount).find(
+          {
+            $or: [
+              { accountType: { $in: accountTypes } },
+              { name: `/${name}/` },
+              { email: `/${email}/` },
+            ],
           },
-        }
-      );
-    });
+          {
+            sort: { name: 1 },
+            projection: {
+              password: 0,
+            },
+          }
+        );
+      },
+      { type: DBConfigTypes.FIND_MANY }
+    );
   }
 }

@@ -7,7 +7,11 @@ import updateUser from "./update/details";
 import updatePassword from "./update/password";
 import forgotPassword from "./update/forgot-password";
 import resetPassword from "./update/reset-password";
-import { getUsersByAccountType } from "./get/get_users";
+import {
+  getUserAccountsByAccountType,
+  getUserAccount,
+  getUserAccountsForSuperAdmin,
+} from "./get/get_users";
 
 import avatar from "./update/avatar";
 import password from "./update/password";
@@ -38,7 +42,9 @@ rUser.post("/forgot-password", forgotPassword);
 rUser.put("/reset-password", resetPassword);
 
 // Get users
-rUser.get("/get-active-users", auth.admin, getUsersByAccountType);
+rUser.get("/user-accounts", auth.admin, getUserAccountsByAccountType);
+rUser.get("/user-account/:userId", auth.admin, getUserAccount);
+rUser.get("/user-accounts-sa", auth.superAdmin, getUserAccountsForSuperAdmin);
 
 // rUser.put("/set-avatar/:userId*?", auth.any, avatar)
 // rUser.put("/set-password/:userId*?", auth.any, password)
