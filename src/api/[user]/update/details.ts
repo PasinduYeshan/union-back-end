@@ -2,6 +2,7 @@ require("dotenv").config();
 import { EHandler, Handler, Log } from "../../../utils/types";
 import { inspectBuilder, body, param } from "../../../utils/inspect";
 import model, { DBErrorCode } from "../../../model";
+import { cleanQuery } from "../../../utils/functions";
 const _ = require("lodash");
 
 // Get list of super admin emails
@@ -50,7 +51,7 @@ const accountInspector = inspectBuilder(
     .optional()
     .isIn(accountT)
     .withMessage("accountType is invalid"),
-  body("active")
+  body("status")
     .optional()
     .isIn(["Active", "Inactive"])
     .withMessage("Account status is invalid"),
@@ -113,7 +114,7 @@ const updateUserAccount: Handler = async (req, res) => {
   const updaterUserId = req.user.userId;
   const updaterAccountType = req.user.accountType;
   const userId = req.params.userId;
-  const { name, NIC, branchName, email, contactNo, accountType, active } =
+  const { name, NIC, branchName, email, contactNo, accountType, status } =
     req.body;
 
   const updateData: Log = {
@@ -122,17 +123,21 @@ const updateUserAccount: Handler = async (req, res) => {
     time: new Date(),
   };
 
-  const userData = {
+  const userData = cleanQuery({
     name,
     NIC,
     branchName,
     email,
     contactNo,
     accountType,
-    active,
+    status,
     lastUpdatedBy: updateData,
-  };
-
+  });
+  
+  if (Object.keys(userData).length == 1) {
+    r.status.BAD_REQ().message("No data to update").send();
+    return;
+  }
   // Sync model to database (filter, update, options)
   const [error, response] = await model.user.update_UserAccount(
     {

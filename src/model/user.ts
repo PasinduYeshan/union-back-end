@@ -93,15 +93,23 @@ export abstract class UserModel {
   }
 
   // Get user account by accountType
-  static async get_UserAccounts(
-    accountTypes: string[],
-    status: string | null = "Active"
-  ): Promise<any> {
+  static async get_UserAccounts(accountTypes: string[]): Promise<any> {
+    // Get accounts which are active or not have been inactive more than 30 days
+    const disabledDate = new Date();
+    disabledDate.setDate(disabledDate.getDate() - 31);
     return await runMongoQuery(
       async (db: Db) => {
         return db.collection(this.c_userAccount).find(
           {
-            $and: [{ accountType: { $in: accountTypes } }, { status: status }],
+            $and: [
+              { accountType: { $in: accountTypes } },
+              {
+                $or: [
+                  { status: "Inactive" },
+                  { "createdBy.time": { $gte: disabledDate } },
+                ],
+              },
+            ],
           },
           {
             projection: {
