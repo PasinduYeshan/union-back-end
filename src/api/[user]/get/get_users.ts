@@ -60,7 +60,6 @@ const _getUserAccountsByAccountType: Handler = async (req, res) => {
       accountTypes = allowedAccountTypes;
       break;
   }
-
   // Get user accounts from the database
   const [error, response] = await model.user.get_UserAccounts(accountTypes);
   if (error) {
