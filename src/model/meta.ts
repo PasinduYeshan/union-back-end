@@ -3,11 +3,6 @@ import { runMongoQuery, DBConfig, DBConfigTypes } from "../utils/mongoDB";
 import { cleanQuery } from "../utils/functions";
 import { UserAccount } from "./types";
 
-/*
- * Queries
- * @param userData
- * @param localAccount
- */
 export abstract class MetaModel {
   private static c_branches = "branches";
 

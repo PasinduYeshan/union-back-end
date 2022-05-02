@@ -28,3 +28,16 @@ export interface Member {}
 export interface Branch {
   branchName: string;
 }
+
+export interface Issue {
+  issueId: string;
+  name: string;
+  branchName: string;
+  membershipNo: string;
+  contactNo: string;
+  title: string;
+  description: string;
+  status: string;
+  issueDate: Date;
+  images: any
+}

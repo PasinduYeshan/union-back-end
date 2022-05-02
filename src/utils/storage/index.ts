@@ -1,31 +1,31 @@
 import multer from "multer";
-import {s3StoragePhotos, s3StorageAvatars} from "./storage";
+import { s3StoragePhotos, s3StorageAvatars, localStorage } from "./storage";
 
 export const uploadPhotos = multer({
-    storage: s3StoragePhotos,
-    limits: {
-        fieldSize: 1024*1024*6
-    },
-    fileFilter: (_, file, cb) => {
-        if (["image/jpeg", "image/jpg", "image/png"].includes(file.mimetype)) {
-            cb(null, true)
-            return
-        }
-        cb(null, false)
+  storage: localStorage,
+  limits: {
+    fieldSize: 1024 * 1024 * 6,
+  },
+  fileFilter: (req: any, file, cb) => {
+    if (["image/jpeg", "image/jpg", "image/png"].includes(file.mimetype)) {
+      cb(null, true);
+      return;
     }
-}).array("photos[]", 10);
-
+      req.fileValidationError = "Invalid file type";
+    return cb(null, false);
+  },
+}).array("images", 10);
 
 export const uploadAvatar = multer({
-    storage: s3StorageAvatars,
-    limits: {
-        fieldSize: 1024*1024*6
-    },
-    fileFilter: (_, file, cb) => {
-        if (["image/jpeg", "image/jpg", "image/png"].includes(file.mimetype)) {
-            cb(null, true)
-            return
-        }
-        cb(null, false)
+  storage: s3StorageAvatars,
+  limits: {
+    fieldSize: 1024 * 1024 * 6,
+  },
+  fileFilter: (_, file, cb) => {
+    if (["image/jpeg", "image/jpg", "image/png"].includes(file.mimetype)) {
+      cb(null, true);
+      return;
     }
-}).single("avatar")
+    cb(null, false);
+  },
+}).single("avatar");
