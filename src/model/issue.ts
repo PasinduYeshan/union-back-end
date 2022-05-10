@@ -45,6 +45,19 @@ export abstract class IssueModel {
    */
 
   // Get all the issues
+  static async get_SingleIssue(issueId: string
+  ) {
+    return await runMongoQuery(
+      async (db: Db) => {
+        return db
+          .collection(this.c_issues)
+          .findOne({issueId});
+      },
+      { type: DBConfigTypes.REQUIRED_ONE }
+    );
+  }
+
+  // Get all the issues
   static async get_Issues(
     query: any,
     limit: number = 20,

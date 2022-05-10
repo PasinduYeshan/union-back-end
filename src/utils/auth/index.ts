@@ -71,16 +71,17 @@ function filter(...types: string[]): Handler {
  */
 
 // Get users for access Levels
- const bsEditorAccessUsers = _.pullAll(Object.values(model.user.accountTypes), [
+const bsEditorAccessUsers = _.pullAll(Object.values(model.user.accountTypes), [
   model.user.accountTypes.officer,
   model.user.accountTypes.bsViewer,
+  model.user.accountTypes.adminViewer,
 ]);
 const bsViewerAccessUsers = _.pullAll(Object.values(model.user.accountTypes), [
   model.user.accountTypes.officer,
 ]);
 const officerAccessUsers = _.pullAll(Object.values(model.user.accountTypes), [
   model.user.accountTypes.bsEditor,
-  model.user.accountTypes.bsViewer
+  model.user.accountTypes.bsViewer,
 ]);
 
 const ip = [inspectAuthHeader, <EHandler>parsePayload];
@@ -117,13 +118,6 @@ export default {
   ],
   bsEditor: [...ip, <EHandler>filter(...bsEditorAccessUsers)],
   bsViewer: [...ip, <EHandler>filter(...bsViewerAccessUsers)],
-  officer: [
-    ...ip,
-    <EHandler>(
-      filter(
-       ...officerAccessUsers
-      )
-    ),
-  ],
+  officer: [...ip, <EHandler>filter(...officerAccessUsers)],
   any: [...ip, <EHandler>filter(...Object.values(model.user.accountTypes))],
 };

@@ -17,18 +17,23 @@ const inspector = inspectBuilder(
     .withMessage("Page must be a positive integer")
 );
 
+const singleIssueInspector = inspectBuilder(
+  param("issueId").exists().withMessage("Issue ID is required")
+);
+
 /**
  * :: STEP 2
  * Handler
  */
 
-// Add branches Handler
-const getIssues: Handler = async (req, res) => {
+// Get issues list
+const _getIssues: Handler = async (req, res) => {
   const { r } = res;
 
   const page: number = (req.query.page as unknown as number) || 1;
-    const limit: number = (req.query.limit as unknown as number) || 50;
-    const sort: any = req.query.sort == 'asc' ? { issueDate: 1 } : { issueDate: -1 };
+  const limit: number = (req.query.limit as unknown as number) || 50;
+  const sort: any =
+    req.query.sort == "asc" ? { issueDate: 1 } : { issueDate: -1 };
 
   const filters = cleanQuery(req.query, [
     "status",
@@ -37,7 +42,12 @@ const getIssues: Handler = async (req, res) => {
     "title",
   ]);
   const [err1, count] = await model.issue.get_IssuesCount(filters);
-  const [error, response] = await model.issue.get_Issues(filters, limit, page, sort);
+  const [error, response] = await model.issue.get_Issues(
+    filters,
+    limit,
+    page,
+    sort
+  );
 
   if (error) {
     if (error.code == DBErrorCode.NOT_FOUND) {
@@ -51,7 +61,7 @@ const getIssues: Handler = async (req, res) => {
 
   r.status
     .OK()
-    .message("Issue updated successfully")
+    .message("Issues")
     .data({
       count,
       issues: response,
@@ -59,9 +69,31 @@ const getIssues: Handler = async (req, res) => {
     .send();
 };
 
+// Get single issue
+const _getSingleIssue: Handler = async (req, res) => {
+  const { r } = res;
+
+  const issueId = req.params.issueId;
+
+  const [error, response] = await model.issue.get_SingleIssue(issueId);
+
+  if (error) {
+    if (error.code == DBErrorCode.NOT_FOUND) {
+      r.status.BAD_REQ().message("Issue Not Found").send();
+      return;
+    } else {
+      r.pb.ISE();
+      return;
+    }
+  }
+
+  r.status.OK().message("Issue").data(response).send();
+};
+
 /**
  * :: STEP 3
  * Request Handler Chain
  */
 
-export default [inspector, <EHandler>getIssues];
+export const getIssues = [inspector, <EHandler>_getIssues];
+export const getSingleIssue = [inspector, <EHandler>_getSingleIssue];

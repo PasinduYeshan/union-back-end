@@ -3,7 +3,7 @@ import auth from "../../utils/auth";
 
 import addMember from "./add_member";
 import updateMember from "./update_member";
-import { getSingleMember, getMultipleMembers } from "./get_member";
+import { findSingleMember, findMultipleMembers, getMemberByUserId } from "./get_member";
 
 const rMember = Router();
 
@@ -14,7 +14,8 @@ rMember.post("/add", auth.bsEditor,addMember );
 rMember.put("/update/:userId", auth.bsEditor, updateMember);
 
 // Get member
-rMember.get("/get", auth.bsViewer, getSingleMember);
-rMember.get("/find", auth.bsViewer, getMultipleMembers);
+rMember.get("/get", auth.bsViewer, findSingleMember);
+rMember.get("/get/:userId", auth.bsViewer, getMemberByUserId);
+rMember.get("/find", auth.bsViewer, findMultipleMembers, getMemberByUserId);
 
 export default rMember;
