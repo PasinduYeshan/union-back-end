@@ -14,8 +14,8 @@ rMember.post("/add", auth.bsEditor,addMember );
 rMember.put("/update/:userId", auth.bsEditor, updateMember);
 
 // Get member
-rMember.get("/get", auth.bsViewer, findSingleMember);
+rMember.get("/find-nic", auth.bsViewer, findSingleMember);
 rMember.get("/get/:userId", auth.bsViewer, getMemberByUserId);
-rMember.get("/find", auth.bsViewer, findMultipleMembers, getMemberByUserId);
+rMember.get("/find", auth.bsViewer, findMultipleMembers);
 
 export default rMember;

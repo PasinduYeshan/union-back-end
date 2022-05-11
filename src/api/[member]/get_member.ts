@@ -42,16 +42,18 @@ const _getMemberByUserId: Handler = async (req, res) => {
 const _findSingleMember: Handler = async (req, res) => {
   const { r } = res;
   const { oldNIC, newNIC } = setQueryValues(req.query);
-  const [err, response] = await model.member.get_MemberByNIC(oldNIC, newNIC);
-  if (err) {
-    r.pb.ISE();
-  } else {
-    if (response == null) {
-      r.status.NOT_FOUND().message("Member not found").send();
+  console.log(oldNIC, newNIC);
+  const [error, response] = await model.member.get_MemberByNIC(oldNIC, newNIC);
+  if (error) {
+    if (error.code == DBErrorCode.NOT_FOUND) {
+      r.status.BAD_REQ().message("Member Not Found").send();
+      return;
     } else {
-      r.status.OK().data(response).message("Member found").send();
+      r.pb.ISE();
+      return;
     }
   }
+  r.status.OK().data(response).message("Member found").send();
 };
 
 // Query members
@@ -90,12 +92,12 @@ const _findMultipleMembers: Handler = async (req, res) => {
  * :: STEP 3
  *
  */
-export const findSingleMember = [
-  getMemberByUserIdInspector,
-  <EHandler>_findSingleMember,
-];
-export const findMultipleMembers = [<EHandler>_findMultipleMembers];
-export const getMemberByUserId = [
+export const findSingleMember = [<EHandler>_findSingleMember];
+export const findMultipleMembers = [
   findMembersInspector,
+  <EHandler>_findMultipleMembers,
+];
+export const getMemberByUserId = [
+  getMemberByUserIdInspector,
   <EHandler>_getMemberByUserId,
 ];

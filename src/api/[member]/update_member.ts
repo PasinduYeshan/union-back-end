@@ -11,34 +11,31 @@ import model, { DBErrorCode } from "../../model";
 const inspector = inspectBuilder(
   // Personal details
   body("fullName").optional(),
-  body("nameWithInitials")
-    .optional(),
+  body("nameWithInitials").optional(),
   body("otherNames").optional(),
   body("dob").optional(),
   body("sex").optional(),
-  body("permanentAddress")
-    .optional(),
+  body("permanentAddress").optional(),
   body("mailingAddress").optional(),
   body("emailAddress")
     .optional()
     .isEmail()
     .withMessage("Email address is required"),
   body("mobileCN")
-    .optional()
+    .optional({ checkFalsy: true })
     .isMobilePhone("any")
     .withMessage("Office Contact Number should be a valid mobile number"),
   body("officeCN")
-    .optional()
+    .optional({ checkFalsy: true })
     .isMobilePhone("any")
     .withMessage("Office Contact Number should be a valid mobile number"),
   body("homeCN")
-    .optional()
+    .optional({ checkFalsy: true })
     .isMobilePhone("any")
     .withMessage("Home Contact Number should be a valid mobile number"),
   body("civilStatus").optional(),
   body("nominee").optional(),
-  body("relationshipOfNominee")
-    .optional(),
+  body("relationshipOfNominee").optional(),
 
   // Family details
   body("spouseName").optional(),
@@ -51,32 +48,25 @@ const inspector = inspectBuilder(
   // Department details
   body("title").optional(),
   body("grade").optional(),
-  body("dateOfAppointment")
-    .optional()
-    ,
-  body("permanentWorkStation")
-    .optional(),
-  body("presentWorkStation")
-    .optional(),
+  body("dateOfAppointment").optional(),
+  body("permanentWorkStation").optional(),
+  body("presentWorkStation").optional(),
   body("dateOfPension").optional(),
-  body("officeOfRegionalAccountant")
-    .optional(),
+  body("officeOfRegionalAccountant").optional(),
   body("paySheetNo").optional(),
   body("employeeId").optional(),
   body("officeOfDPMG").optional(),
 
   // Membership details
   body("membershipNo").optional(),
-  body("dateOfMembership")
-    .optional(),
+  body("dateOfMembership").optional(),
   body("RDSNumber").optional(),
-  body("memberOfOtherUnion")
-    .optional(),
+  body("memberOfOtherUnion").optional(),
   body("otherUnions").optional(),
 
   // Branch details
   body("branchName").optional(),
-  param("userId").exists().withMessage("User Id is required"),
+  param("userId").exists().withMessage("User Id is required")
 );
 
 /**
@@ -182,13 +172,11 @@ const updateMember: Handler = async (req, res) => {
     otherUnions,
     unionName,
     branchName,
-    createdBy
+    createdBy,
   };
 
-  
-
   const [err, response] = await model.member.update_Member(userId, memberData);
-  
+
   if (err) {
     if (err.code === DBErrorCode.NOT_FOUND) {
       r.status.BAD_REQ().message("Duplicate Entry").send();
@@ -201,11 +189,9 @@ const updateMember: Handler = async (req, res) => {
     if (response.matchedCount === 0) {
       r.status.NOT_FOUND().message("Member not found").send();
       return;
-    }else{
+    } else {
       r.status.OK().message("Successfully updated").send();
     }
-
-    
   }
 };
 
