@@ -41,3 +41,11 @@ export interface Issue {
   issueDate: Date;
   images: any
 }
+
+export interface Event {
+  eventId: string;
+  title: string;
+  description: string;
+  date: Date;
+  images: any;
+}

@@ -6,6 +6,7 @@ import rUser from "./[user]"
 import rMeta from "./[meta]";
 import rMember from "./[member]";
 import rIssue from "./[issue]";
+import rEvent from "./[event]";
 
 export const rApi = Router();
 
@@ -20,6 +21,7 @@ rApi.use("/user", rUser)
 rApi.use("/meta", rMeta)
 rApi.use("/member", rMember)
 rApi.use("/issue", rIssue)
+rApi.use("/event", rEvent)
 
 // Router
 export default rApi

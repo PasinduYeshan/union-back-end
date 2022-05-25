@@ -9,12 +9,9 @@ import { Issue } from "../../model/types";
  * Validation
  */
 const inspector = inspectBuilder(
-  body("name").exists().withMessage("Your name is required"),
-  body("branchName").exists().withMessage("Branch Name is required"),
-  body("membershipNo").exists().withMessage("Membership Number is required"),
-  body("contactNo").exists().withMessage("Contact Number is required"),
   body("title").exists().withMessage("Title is required"),
-  body("description").exists().withMessage("Description is required")
+  body("description").exists().withMessage("Description is required"),
+  body("date").exists().withMessage("Date is required")
 );
 
 /**
@@ -22,8 +19,8 @@ const inspector = inspectBuilder(
  * Handler
  */
 
-// Add branches Handler
-const addIssue: Handler = async (req, res) => {
+// Add event Handler
+const addEvent: Handler = async (req, res) => {
   const { r } = res;
 
   if (req.fileValidationError) {
@@ -31,10 +28,9 @@ const addIssue: Handler = async (req, res) => {
     return;
   }
 
-  const { name, branchName, membershipNo, contactNo, title, description } =
-    req.body;
+  const { date, title, description } = req.body;
 
-  //   TODO: Add Image adding part
+  // //   TODO: Add Image adding part
   const images = [];
   const imageFiles = <any>req.files;
   if (imageFiles) {
@@ -42,24 +38,21 @@ const addIssue: Handler = async (req, res) => {
       images.push(image.path);
     }
   }
-  const issueData = {
-    issueId: UUID(),
-    issueDate: new Date(),
-    status: model.issue.issueStatus.pending,
-    name,
-    branchName,
-    membershipNo,
-    contactNo,
+
+  const eventData = {
+    eventId: UUID(),
+    date: new Date(date),
     title,
     description,
     images,
   };
-    
-  const [error, response] = await model.issue.add_Issue(issueData);
+  console.log(eventData);
+
+  const [error, response] = await model.event.add_Event(eventData);
 
   if (error) {
     if (error.code == DBErrorCode.DUPLICATE_ENTRY) {
-      r.status.BAD_REQ().message("Issue already exists").send();
+      r.status.BAD_REQ().message("Event already exists").send();
       return;
     } else {
       r.pb.ISE();
@@ -67,7 +60,7 @@ const addIssue: Handler = async (req, res) => {
     }
   }
 
-  r.status.OK().message("Issue added successfully").send();
+  r.status.OK().message("Event added successfully").send();
 };
 
 /**
@@ -76,4 +69,4 @@ const addIssue: Handler = async (req, res) => {
  */
 import { uploadPhotos } from "../../utils/storage";
 
-export default [uploadPhotos, inspector, <EHandler>addIssue];
+export default [uploadPhotos, inspector, <EHandler>addEvent];
