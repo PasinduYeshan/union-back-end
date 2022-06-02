@@ -72,7 +72,14 @@ const updateProfile: Handler = async (req, res) => {
 
   // Setup Data
   const userId = req.user.userId;
-  const { name, NIC, branchName, email, contactNo } = req.body;
+  const { name, NIC, branchName, email, contactNo, status } = req.body;
+
+  // Updated by
+  const updateData: Log = {
+    name: name || req.user.name,
+    userId: req.user.userId,
+    time: new Date(),
+  };
 
   const userData = {
     name,
@@ -80,6 +87,8 @@ const updateProfile: Handler = async (req, res) => {
     branchName,
     email,
     contactNo,
+    status,
+    lastUpdatedBy: updateData,
   };
 
   // Sync model to database (filter, update, options)

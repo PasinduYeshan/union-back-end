@@ -151,6 +151,30 @@ const _getUserAccount: Handler = async (req, res) => {
 };
 
 /**
+ * Get user profile
+ * @param req
+ * @param res
+ * @returns
+ */
+const _getUserProfile: Handler = async (req, res) => {
+  const { r } = res;
+  const { userId } = req.user;
+
+  // Get user accounts from the database
+  const [error, response] = await model.user.get_UserAccount(userId);
+  if (error) {
+    if (error.code == DBErrorCode.NOT_FOUND) {
+      r.status.NOT_FOUND().message("User not found").send();
+      return;
+    } else {
+      r.pb.ISE();
+      return;
+    }
+  }
+  r.status.OK().message("User accounts").data(response).send();
+};
+
+/**
  * Request Handler Chain
  */
 export const getUserAccountsByAccountType = [
@@ -162,3 +186,4 @@ export const getUserAccountsForSuperAdmin = [
   <EHandler>_getUserAccounts,
 ];
 export const getUserAccount = [inspector, <EHandler>_getUserAccount];
+export const getUserProfile = [<EHandler>_getUserProfile];

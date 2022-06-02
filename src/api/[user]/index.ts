@@ -11,13 +11,9 @@ import {
   getUserAccountsByAccountType,
   getUserAccount,
   getUserAccountsForSuperAdmin,
+  getUserProfile
 } from "./get/get_users";
 
-import avatar from "./update/avatar";
-import password from "./update/password";
-import details from "./update/details";
-import get_details from "./get_details";
-import refresh from "./login/refresh";
 
 const rUser = Router();
 
@@ -30,7 +26,7 @@ rUser.post("/register-sa", registerUserAccount);
 rUser.post("/register", auth.adminEditor, registerUserAccount); // Only admin can register other users
 
 // Update User Account
-rUser.put("/update/:userId", auth.admin, updateUser.account);
+rUser.put("/update/:userId", auth.adminEditor, updateUser.account);
 rUser.put("/update-profile", auth.any, updateUser.profile);
 
 // Update password
@@ -45,6 +41,7 @@ rUser.put("/reset-password", resetPassword);
 rUser.get("/user-accounts", auth.admin, getUserAccountsByAccountType);
 rUser.get("/user-account/:userId", auth.admin, getUserAccount);
 rUser.get("/user-accounts-sa", auth.superAdmin, getUserAccountsForSuperAdmin);
+rUser.get("/user-profile", auth.any, getUserProfile);
 
 // rUser.put("/set-avatar/:userId*?", auth.any, avatar)
 // rUser.put("/set-password/:userId*?", auth.any, password)
