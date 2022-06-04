@@ -32,6 +32,17 @@ export abstract class MemberModel {
   }
 
   /*
+   * Delete
+   */
+  static async delete_Member(userId: string) {
+    return await runMongoQuery(async (db: Db) => {
+      return await db
+        .collection(this.c_member)
+        .deleteOne({ userId });
+    });
+  }
+
+  /*
    * Getters
    */
   static async get_MemberByUserId(userId: string) {
@@ -39,7 +50,7 @@ export abstract class MemberModel {
       async (db: Db) => {
         return await db
           .collection(this.c_member)
-          .findOne({ userId }, { projection: { _id: 0 } });
+          .findOne({ userId, deleted: false }, { projection: { _id: 0 } });
       },
       { type: DBConfigTypes.REQUIRED_ONE }
     );
@@ -48,12 +59,15 @@ export abstract class MemberModel {
   static async get_MemberByNIC(oldNIC: string = "", newNIC: string = "") {
     return await runMongoQuery(
       async (db: Db) => {
-        return await db
-          .collection(this.c_member)
-          .findOne(
-            { $or: [{ oldNIC: oldNIC }, { newNIC: newNIC }] },
-            { projection: { _id: 0 } }
-          );
+        return await db.collection(this.c_member).findOne(
+          {
+            $and: [
+              { deleted: false },
+              { $or: [{ oldNIC: oldNIC }, { newNIC: newNIC }] },
+            ],
+          },
+          { projection: { _id: 0 } }
+        );
       },
       { type: DBConfigTypes.REQUIRED_ONE }
     );
@@ -70,7 +84,7 @@ export abstract class MemberModel {
       async (db: Db) => {
         return db
           .collection(this.c_member)
-          .find(query)
+          .find({ ...query, deleted: false })
           .sort(sort)
           .limit(parseInt(limit.toString()))
           .skip((page - 1) * limit);
@@ -82,7 +96,9 @@ export abstract class MemberModel {
   // Get all the members count
   static async get_MembersCount(query: any) {
     return await runMongoQuery(async (db: Db) => {
-      return db.collection(this.c_member).countDocuments(query);
+      return db
+        .collection(this.c_member)
+        .countDocuments({ ...query, deleted: false });
     });
   }
 }

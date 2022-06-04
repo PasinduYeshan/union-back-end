@@ -17,4 +17,7 @@ rEvent.put("/update/:eventId", auth.officer, updateEvent);
 rEvent.get("/get", getEvents);
 rEvent.get("/get/:eventId", getSingleEvent);
 
+// Delete event
+rEvent.delete("/delete/:eventId", auth.officer);
+
 export default rEvent;

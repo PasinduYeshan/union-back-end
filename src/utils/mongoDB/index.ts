@@ -10,6 +10,8 @@ export enum DBConfigTypes {
     UPDATE_ONE,
     REQUIRED_ONE,
     FIND_MANY,
+    DELETE_ONE,
+    DELETE_MANY
 }
 
 export  {databaseConnect} ;

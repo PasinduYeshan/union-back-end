@@ -123,9 +123,9 @@ const updateMember: Handler = async (req, res) => {
   } = req.body;
 
   // Log of who is creating the user account
-  let createdBy: Log;
+  let lastUpdatedBy: Log;
 
-  createdBy = {
+  lastUpdatedBy = {
     userId: req.user.userId,
     name: req.user.name,
     time: new Date(),
@@ -172,26 +172,21 @@ const updateMember: Handler = async (req, res) => {
     otherUnions,
     unionName,
     branchName,
-    createdBy,
+    lastUpdatedBy,
   };
 
   const [err, response] = await model.member.update_Member(userId, memberData);
 
   if (err) {
     if (err.code === DBErrorCode.NOT_FOUND) {
-      r.status.BAD_REQ().message("Duplicate Entry").send();
+      r.status.NOT_FOUND().message("Member not found").send();
       return;
     } else {
       r.pb.ISE();
       return;
     }
   } else {
-    if (response.matchedCount === 0) {
-      r.status.NOT_FOUND().message("Member not found").send();
-      return;
-    } else {
-      r.status.OK().message("Successfully updated").send();
-    }
+    r.status.OK().message("Successfully updated").send();
   }
 };
 

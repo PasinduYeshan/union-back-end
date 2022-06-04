@@ -35,6 +35,23 @@ export abstract class EventModel {
   }
 
   /*
+   * Delete
+   */
+  // Update Issue
+  static async delete_Event(eventId: string) {
+    return await runMongoQuery(
+      async (db: Db) => {
+        return db
+          .collection(this.c_events)
+          .deleteOne(
+            { eventId },
+          );
+      },
+      { type: DBConfigTypes.DELETE_ONE }
+    );
+  }
+
+  /*
    * Getters
    */
 

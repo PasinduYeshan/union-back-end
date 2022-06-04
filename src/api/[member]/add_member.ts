@@ -202,7 +202,8 @@ const addMember: Handler = async (req, res) => {
     otherUnions,
     unionName,
     branchName,
-    createdBy
+    createdBy,
+    deleted: false
   };
 
   

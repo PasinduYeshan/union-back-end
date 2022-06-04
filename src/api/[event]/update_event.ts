@@ -1,8 +1,6 @@
 import { EHandler, Handler, Log } from "../../utils/types";
 import { inspectBuilder, body, param } from "../../utils/inspect";
 import model, { DBErrorCode } from "../../model";
-import { v4 as UUID } from "uuid";
-import { Event } from "../../model/types";
 
 /**
  * :: STEP 1
@@ -16,8 +14,6 @@ const inspector = inspectBuilder(
  * :: STEP 2
  * Handler
  */
-
-// Add branches Handler
 const updateEvent: Handler = async (req, res) => {
   const { r } = res;
 

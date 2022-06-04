@@ -2,6 +2,7 @@ import databaseConnect from "./conn";
 import { MongoServerError } from "mongodb";
 import { mongoErrorToDBError, DBErrorCode } from "./dbError";
 import { DBConfig, DBConfigTypes } from "./index";
+import { config } from "dotenv";
 
 /**
  * // Run mongo db query and return result as an array [error, data]
@@ -22,7 +23,10 @@ export async function runMongoQuery(
     if (
       (configs.type === DBConfigTypes.UPDATE_ONE &&
         response.matchedCount === 0) ||
-      (configs.type === DBConfigTypes.REQUIRED_ONE && response == null)
+      (configs.type === DBConfigTypes.REQUIRED_ONE && response == null) ||
+      ((configs.type == DBConfigTypes.DELETE_ONE ||
+        configs.type == DBConfigTypes.DELETE_MANY) &&
+        response.deletedCount === 0)
     ) {
       return [{ message: "No data found", code: DBErrorCode.NOT_FOUND }, null];
     } else if (configs.type == DBConfigTypes.FIND_MANY) {
