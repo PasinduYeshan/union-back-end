@@ -51,14 +51,24 @@ export interface Event {
 }
 
 export interface BranchSecretary{
+  branchSecId: string;
   name: string;
   branchName: string;
   contactNo: string;
 }
 
 export interface CommitteeMember {
+  committeeMemberId: string;
   name: string;
   position: string;
   contactNo: string;
   order: number;
+}
+
+export interface Leader {
+  order: number,
+  leaderId: string;
+  name: string;
+  position: string;
+  contactNo: string;
 }

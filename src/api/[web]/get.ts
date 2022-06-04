@@ -50,7 +50,30 @@ const _getCommitteeMembers: Handler = async (req, res) => {
     }
   }
 
-  r.status.OK().message("Branch Secretaries").data({count, committeeMembers: response}).send();
+  r.status
+    .OK()
+    .message("Branch Secretaries")
+    .data({ count, committeeMembers: response })
+    .send();
+};
+
+// Get leaders list
+const _getLeader: Handler = async (req, res) => {
+  const { r } = res;
+
+  const [error, response] = await model.web.get_Leaders();
+
+  if (error) {
+    if (error.code == DBErrorCode.NOT_FOUND) {
+      r.status.BAD_REQ().message("Leaders not found").send();
+      return;
+    } else {
+      r.pb.ISE();
+      return;
+    }
+  }
+
+  r.status.OK().message("Leaders").data(response).send();
 };
 
 /**
@@ -60,3 +83,4 @@ const _getCommitteeMembers: Handler = async (req, res) => {
 
 export const getBranchSecretaries = [<EHandler>_getBranchSecretaries];
 export const getCommitteeMembers = [<EHandler>_getCommitteeMembers];
+export const getLeaders = [<EHandler>_getLeader];
