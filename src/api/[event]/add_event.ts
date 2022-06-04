@@ -46,8 +46,6 @@ const addEvent: Handler = async (req, res) => {
     description,
     images,
   };
-  console.log(eventData);
-
   const [error, response] = await model.event.add_Event(eventData);
 
   if (error) {

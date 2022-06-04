@@ -9,7 +9,7 @@ export abstract class EventModel {
   /*
    * Creators
    */
-  // Add multiple issues
+  // Add one event
   static async add_Event(eventData: any) {
     return await runMongoQuery(async (db: Db) => {
       return db.collection(this.c_events).insertOne(eventData);
@@ -19,7 +19,6 @@ export abstract class EventModel {
   /*
    * Update
    */
-  // Update Issue
   static async update_Event(eventId: string, updateData: {}, options = {}) {
     return await runMongoQuery(
       async (db: Db) => {
@@ -37,7 +36,6 @@ export abstract class EventModel {
   /*
    * Delete
    */
-  // Update Issue
   static async delete_Event(eventId: string) {
     return await runMongoQuery(
       async (db: Db) => {
@@ -55,7 +53,7 @@ export abstract class EventModel {
    * Getters
    */
 
-  // Get all the issues
+  // Get single event
   static async get_SingleEvent(eventId: string
   ) {
     return await runMongoQuery(
@@ -68,7 +66,7 @@ export abstract class EventModel {
     );
   }
 
-  // Get all the issues
+  // Get all the events
   static async get_Events(
     query: any,
     limit: number = 20,
@@ -88,7 +86,7 @@ export abstract class EventModel {
     );
   }
 
-  // Get all the issue count
+  // Get event count
   static async get_EventsCount(query: any) {
     return await runMongoQuery(async (db: Db) => {
       return db.collection(this.c_events).countDocuments(query);

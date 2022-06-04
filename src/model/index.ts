@@ -2,7 +2,8 @@ import { UserModel } from "./user";
 import { MemberModel } from "./member";
 import { MetaModel } from "./meta";
 import { IssueModel } from "./issue";
-import {EventModel} from "./event";
+import { EventModel } from "./event";
+import { WebModel } from "./web";
 
 export { DBErrorCode } from "../utils/mongoDB";
 
@@ -12,6 +13,7 @@ export const model = {
   meta: MetaModel,
   issue: IssueModel,
   event: EventModel,
+  web: WebModel,
 };
 
 export default model;

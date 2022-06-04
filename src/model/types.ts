@@ -49,3 +49,16 @@ export interface Event {
   date: Date;
   images: any;
 }
+
+export interface BranchSecretary{
+  name: string;
+  branchName: string;
+  contactNo: string;
+}
+
+export interface CommitteeMember {
+  name: string;
+  position: string;
+  contactNo: string;
+  order: number;
+}
