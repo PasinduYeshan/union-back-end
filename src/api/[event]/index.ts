@@ -3,6 +3,7 @@ import auth from "../../utils/auth";
 
 import addEvent from "./add_event";
 import updateEvent from "./update_event";
+import deleteEvent from "./delete_event";
 import { getEvents, getSingleEvent } from "./get_event";
 
 const rEvent = Router();
@@ -18,6 +19,6 @@ rEvent.get("/get", getEvents);
 rEvent.get("/get/:eventId", getSingleEvent);
 
 // Delete event
-rEvent.delete("/delete/:eventId", auth.officer);
+rEvent.delete("/delete/:eventId", auth.officer, deleteEvent);
 
 export default rEvent;

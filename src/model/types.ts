@@ -72,3 +72,11 @@ export interface Leader {
   position: string;
   contactNo: string;
 }
+
+export interface Announcement {
+  announcementId: string;
+  title: string;
+  content: string;
+  date: Date;
+  images: any;
+}

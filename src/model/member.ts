@@ -78,7 +78,7 @@ export abstract class MemberModel {
     query: any,
     limit: number = 20,
     page: number = 1,
-    sort: any = { issueDate: 1 }
+    sort: any 
   ) {
     return await runMongoQuery(
       async (db: Db) => {

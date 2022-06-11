@@ -32,6 +32,11 @@ const committeeMemberInspector = inspectBuilder(
     .withMessage("Order is invalid")
 );
 
+const announcementInspector = inspectBuilder(
+  body("title").exists().withMessage("Title is required"),
+  body("content").optional()
+);
+
 /**
  * :: STEP 2
  * Handler
@@ -123,6 +128,49 @@ const _addLeader: Handler = async (req, res) => {
   r.status.OK().message("Leader added successfully").send();
 };
 
+// Add announcement
+const _addAnnouncement: Handler = async (req, res) => {
+  const { r } = res;
+
+  if (req.fileValidationError) {
+    r.status.BAD_REQ().message("Invalid file type").send();
+    return;
+  }
+
+  const { content, title, date } = req.body;
+
+  // //   TODO: Add Image adding part
+  const images = [];
+  const imageFiles = <any>req.files;
+  if (imageFiles) {
+    for (const image of imageFiles) {
+      images.push(image.path);
+    }
+  }
+
+  const data = {
+    announcementId: UUID(),
+    date: new Date(date),
+    title,
+    content,
+    images,
+  };
+
+  const [error, response] = await model.web.add_Announcement(data);
+
+  if (error) {
+    if (error.code == DBErrorCode.DUPLICATE_ENTRY) {
+      r.status.BAD_REQ().message("Announcement already exists").send();
+      return;
+    } else {
+      r.pb.ISE();
+      return;
+    }
+  }
+
+  r.status.OK().message("Announcement added successfully").send();
+};
+
 /**
  * :: STEP 3
  * Request Handler Chain
@@ -138,4 +186,8 @@ export const addCommitteeMembers = [
 export const addLeader = [
   committeeMemberInspector,
   <EHandler>_addLeader,
+];
+export const addAnnouncement = [
+  announcementInspector,
+  <EHandler>_addAnnouncement,
 ];

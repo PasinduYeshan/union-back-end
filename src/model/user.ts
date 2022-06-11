@@ -82,6 +82,21 @@ export abstract class UserModel {
     );
   }
 
+  // Get full user account by user id
+  static async get_FullUserAccount(userId: string) {
+    return await runMongoQuery(
+      async (db: Db) => {
+        return await db
+          .collection(this.c_userAccount)
+          .findOne(
+            { userId },
+            { projection: {_id: 0 } }
+          );
+      },
+      { type: DBConfigTypes.REQUIRED_ONE }
+    );
+  }
+
   // Get user account by user id
   static async get_UserAccount(userId: string) {
     return await runMongoQuery(

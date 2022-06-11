@@ -24,7 +24,7 @@ const validateCredentials: Handler = async (req, res, next) => {
   const userId = req.params.userId || req.user.userId;
   const { currentPassword } = req.body;
 
-  const [error, response] = await model.user.get_UserAccount(userId);
+  const [error, response] = await model.user.get_FullUserAccount(userId);
   if (error) {
     if (error.code == DBErrorCode.NOT_FOUND) {
       r.status.NOT_FOUND().message("User not found").send();

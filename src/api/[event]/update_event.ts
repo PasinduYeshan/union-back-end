@@ -28,13 +28,19 @@ const updateEvent: Handler = async (req, res) => {
   //   TODO: Add Image adding part
   const images = [];
   const imageFiles = <any>req.files;
+  console.log(imageFiles);
   if (imageFiles) {
     for (const image of imageFiles) {
       images.push(image.path);
     }
   }
 
-  const updateData = {date, title, description, images };
+  const updateData = {
+    date: date ? new Date(date) : date,
+    title,
+    description,
+    images,
+  };
   const [error, response] = await model.event.update_Event(eventId, updateData);
 
   if (error) {

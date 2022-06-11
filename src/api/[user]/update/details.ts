@@ -117,6 +117,7 @@ const updateProfile: Handler = async (req, res) => {
  * @param res
  */
 const updateUserAccount: Handler = async (req, res) => {
+  console.log("Update user account");
   const { r } = res;
   // Setup Data
   const updaterName = req.user.name;
@@ -142,11 +143,13 @@ const updateUserAccount: Handler = async (req, res) => {
     status,
     lastUpdatedBy: updateData,
   });
+  console.log(userId, userData);
   
   if (Object.keys(userData).length == 1) {
     r.status.BAD_REQ().message("No data to update").send();
     return;
   }
+  
   // Sync model to database (filter, update, options)
   const [error, response] = await model.user.update_UserAccount(
     {
@@ -158,15 +161,16 @@ const updateUserAccount: Handler = async (req, res) => {
   );
 
   if (error) {
-    r.pb.ISE();
-    return;
+    if (error.code == DBErrorCode.NOT_FOUND) {
+      r.status.BAD_REQ().message("User Not Found").send();
+      return;
+    } else {
+      r.pb.ISE();
+      return;
+    }
   }
 
-  // If no user found
-  if (response.matchedCount == 0) {
-    r.status.NOT_FOUND().message("User not found").send();
-    return;
-  }
+
 
   r.status.OK().message("Account updated successfully").send();
 };

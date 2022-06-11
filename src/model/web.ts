@@ -1,7 +1,7 @@
 import { Db, ObjectId } from "mongodb";
 import { runMongoQuery, DBConfig, DBConfigTypes } from "../utils/mongoDB";
 import { cleanQuery } from "../utils/functions";
-import { BranchSecretary, Leader, CommitteeMember } from "./types";
+import { BranchSecretary, Leader, CommitteeMember, Announcement } from "./types";
 
 export abstract class WebModel {
   private static c_leaders = "leaders";
@@ -11,22 +11,29 @@ export abstract class WebModel {
   /*
    * Creators
    */
-  // Add multiple branch secretaries
+  // Add branch secretary
   static async add_BranchSecretaries(data: BranchSecretary ) {
     return await runMongoQuery(async (db: Db) => {
       return db.collection(this.c_branch_secretaries).insertOne(data);
     });
   }
 
-  // Add multiple committee members
+  // Add committee member
   static async add_CommitteeMembers(data: CommitteeMember) {
     return await runMongoQuery(async (db: Db) => {
       return db.collection(this.c_committee_members).insertOne(data);
     });
   }
 
-  // Add multiple leaders
+  // Add leader
   static async add_Leader(data: Leader) {
+    return await runMongoQuery(async (db: Db) => {
+      return db.collection(this.c_leaders).insertOne(data);
+    });
+  }
+
+  // Add announcement
+  static async add_Announcement(data: Announcement) {
     return await runMongoQuery(async (db: Db) => {
       return db.collection(this.c_leaders).insertOne(data);
     });
