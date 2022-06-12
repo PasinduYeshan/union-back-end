@@ -18,6 +18,10 @@ const leaderInspector = inspectBuilder(
   param("leaderId").exists().withMessage("Leader Id is required")
 );
 
+const announcementInspector = inspectBuilder(
+  param("announcementId").exists().withMessage("Announcement Id is required")
+);
+
 /**
  * :: STEP 2
  * Handler
@@ -85,6 +89,27 @@ const _deleteLeader: Handler = async (req, res) => {
   r.status.OK().message("Leader deleted successfully").send();
 };
 
+
+// Delete Announcement
+const _deleteAnnouncement: Handler = async (req, res) => {
+  const { r } = res;
+  
+  const { announcementId } = req.params;
+
+  const [error, response] = await model.web.delete_Announcement(announcementId);
+
+  if (error) {
+    if (error.code == DBErrorCode.NOT_FOUND) {
+      r.status.BAD_REQ().message("Announcement not found").send();
+      return;
+    } else {
+      r.pb.ISE();
+      return;
+    }
+  }
+
+  r.status.OK().message("Announcement deleted successfully").send();
+};
 /**
  * :: STEP 3
  * Request Handler Chain
@@ -93,3 +118,4 @@ const _deleteLeader: Handler = async (req, res) => {
 export const deleteBranchSecretary = [branchSecretaryInspector, <EHandler>_deleteBranchSecretary];
 export const deleteCommitteeMember = [committeeMemberInspector, <EHandler>_deleteCommitteeMember];
 export const deleteLeader = [leaderInspector, <EHandler>_deleteLeader];
+export const deleteAnnouncement = [announcementInspector, <EHandler>_deleteAnnouncement];

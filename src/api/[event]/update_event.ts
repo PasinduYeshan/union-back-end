@@ -28,7 +28,6 @@ const updateEvent: Handler = async (req, res) => {
   //   TODO: Add Image adding part
   const images = [];
   const imageFiles = <any>req.files;
-  console.log(imageFiles);
   if (imageFiles) {
     for (const image of imageFiles) {
       images.push(image.path);

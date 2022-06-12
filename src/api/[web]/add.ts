@@ -103,6 +103,11 @@ const _addCommitteeMember: Handler = async (req, res) => {
 const _addLeader: Handler = async (req, res) => {
   const { r } = res;
 
+  if (req.fileValidationError) {
+    r.status.BAD_REQ().message("Invalid file type").send();
+    return;
+  }
+
   const { name, position, contactNo, order } = req.body;
 
   const data = {
@@ -111,6 +116,7 @@ const _addLeader: Handler = async (req, res) => {
     position,
     contactNo,
     order,
+    image: req.file ? req.file?.path : null,
   };
 
   const [error, response] = await model.web.add_Leader(data);
@@ -175,6 +181,7 @@ const _addAnnouncement: Handler = async (req, res) => {
  * :: STEP 3
  * Request Handler Chain
  */
+import { uploadSinglePhoto, uploadPhotos } from "../../utils/storage";
 export const addBranchSecretary = [
   branchSecretaryInspector,
   <EHandler>_addBranchSecretary,
@@ -184,10 +191,12 @@ export const addCommitteeMembers = [
   <EHandler>_addCommitteeMember,
 ];
 export const addLeader = [
+  uploadSinglePhoto,
   committeeMemberInspector,
   <EHandler>_addLeader,
 ];
 export const addAnnouncement = [
+  uploadPhotos,
   announcementInspector,
   <EHandler>_addAnnouncement,
 ];

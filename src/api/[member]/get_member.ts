@@ -42,7 +42,6 @@ const _getMemberByUserId: Handler = async (req, res) => {
 const _findSingleMember: Handler = async (req, res) => {
   const { r } = res;
   const { oldNIC, newNIC } = setQueryValues(req.query);
-  console.log(oldNIC, newNIC);
   const [error, response] = await model.member.get_MemberByNIC(oldNIC, newNIC);
   if (error) {
     if (error.code == DBErrorCode.NOT_FOUND) {

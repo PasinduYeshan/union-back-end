@@ -25,7 +25,7 @@ const updateBranchInspector = inspectBuilder(
 const addBranches: Handler = async (req, res, next) => {
   const { r } = res;
   const { branches } = req.body;
-    // console.log("branches",JSON.parse(JSON.stringify(branches)));
+  
   // Add branches to the database
   const [error, response] = await model.meta.add_Branches(branches);
 

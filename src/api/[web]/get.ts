@@ -76,6 +76,25 @@ const _getLeader: Handler = async (req, res) => {
   r.status.OK().message("Leaders").data(response).send();
 };
 
+// Get announcement list
+const _getAnnouncement: Handler = async (req, res) => {
+  const { r } = res;
+
+  const [error, response] = await model.web.get_Announcements();
+
+  if (error) {
+    if (error.code == DBErrorCode.NOT_FOUND) {
+      r.status.BAD_REQ().message("Announcements not found").send();
+      return;
+    } else {
+      r.pb.ISE();
+      return;
+    }
+  }
+
+  r.status.OK().message("Announcements").data(response).send();
+};
+
 /**
  * :: STEP 3
  * Request Handler Chain
@@ -84,3 +103,4 @@ const _getLeader: Handler = async (req, res) => {
 export const getBranchSecretaries = [<EHandler>_getBranchSecretaries];
 export const getCommitteeMembers = [<EHandler>_getCommitteeMembers];
 export const getLeaders = [<EHandler>_getLeader];
+export const getAnnouncements = [<EHandler>_getAnnouncement];

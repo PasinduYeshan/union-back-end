@@ -117,7 +117,6 @@ const updateProfile: Handler = async (req, res) => {
  * @param res
  */
 const updateUserAccount: Handler = async (req, res) => {
-  console.log("Update user account");
   const { r } = res;
   // Setup Data
   const updaterName = req.user.name;
@@ -143,7 +142,6 @@ const updateUserAccount: Handler = async (req, res) => {
     status,
     lastUpdatedBy: updateData,
   });
-  console.log(userId, userData);
   
   if (Object.keys(userData).length == 1) {
     r.status.BAD_REQ().message("No data to update").send();

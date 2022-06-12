@@ -5,6 +5,7 @@ import { BranchSecretary, Leader, CommitteeMember, Announcement } from "./types"
 
 export abstract class WebModel {
   private static c_leaders = "leaders";
+  private static c_announcements = "announcements";
   private static c_branch_secretaries = "branch_secretaries";
   private static c_committee_members = "committee_members";
 
@@ -35,7 +36,7 @@ export abstract class WebModel {
   // Add announcement
   static async add_Announcement(data: Announcement) {
     return await runMongoQuery(async (db: Db) => {
-      return db.collection(this.c_leaders).insertOne(data);
+      return db.collection(this.c_announcements).insertOne(data);
     });
   }
 
@@ -87,6 +88,21 @@ export abstract class WebModel {
     );
   }
 
+  // Update Announcement
+  static async update_Announcement(announcementId: string, updateData: {}, options = {}) {
+    return await runMongoQuery(
+      async (db: Db) => {
+        return db
+          .collection(this.c_announcements)
+          .updateOne(
+            { announcementId },
+            { $set: cleanQuery(updateData) }
+          );
+      },
+      { type: DBConfigTypes.UPDATE_ONE }
+    );
+  }
+
 
   /*
    * Delete
@@ -127,6 +143,20 @@ export abstract class WebModel {
           .collection(this.c_leaders)
           .deleteOne(
             { leaderId },
+          );
+      },
+      { type: DBConfigTypes.DELETE_ONE }
+    );
+  }
+
+  // Delete Announcement
+  static async delete_Announcement(announcementId: string) {
+    return await runMongoQuery(
+      async (db: Db) => {
+        return db
+          .collection(this.c_announcements)
+          .deleteOne(
+            { announcementId },
           );
       },
       { type: DBConfigTypes.DELETE_ONE }
@@ -187,5 +217,22 @@ export abstract class WebModel {
       return db.collection(this.c_committee_members).countDocuments();
     });
   }
+
+  // Get all announcements
+  static async get_Announcements(
+    sort: any = { date: -1 }
+  ) {
+    return await runMongoQuery(
+      async (db: Db) => {
+        return db
+          .collection(this.c_announcements)
+          .find()
+          .sort(sort)
+      },
+      { type: DBConfigTypes.FIND_MANY }
+    );
+  }
+
+  
 
 }
