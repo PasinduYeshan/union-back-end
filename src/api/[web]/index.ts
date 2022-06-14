@@ -12,7 +12,7 @@ const rWeb = Router();
 rWeb.post("/add-branch-secretary", auth.officer, addBranchSecretary);
 rWeb.post("/add-committee-member", auth.officer, addCommitteeMembers);
 rWeb.post("/add-leader", auth.officer, addLeader);
-rWeb.post("/add-leader", auth.officer, addAnnouncement);
+rWeb.post("/add-announcement", auth.officer, addAnnouncement);
 
 // Update
 rWeb.put("/update-branch-secretary/:branchSecId", auth.officer, updateBranchSecretary);

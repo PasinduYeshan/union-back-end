@@ -12,8 +12,7 @@ const branchSecretaryInspector = inspectBuilder(
   body("name").exists().withMessage("Name is required"),
   body("branchName").exists().withMessage("Branch Name is required"),
   body("contactNo")
-    .exists()
-    .withMessage("Contact Number is required")
+    .optional()
     .isMobilePhone("any")
     .withMessage("Contact Number is invalid")
 );
@@ -34,6 +33,7 @@ const committeeMemberInspector = inspectBuilder(
 
 const announcementInspector = inspectBuilder(
   body("title").exists().withMessage("Title is required"),
+  body("date").exists().withMessage("Date is required"),
   body("content").optional()
 );
 

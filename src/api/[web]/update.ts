@@ -22,9 +22,9 @@ const leaderInspector = inspectBuilder(
 
 const announcementInspector = inspectBuilder(
   param("announcementId").exists().withMessage("Announcement ID is required"),
-  body("title").exists().withMessage("Title is required"),
+  body("title").optional(),
   body("content").optional(),
-  body("date").exists().withMessage("Date is required")
+  body("date").optional()
 );
 /**
  * :: STEP 2

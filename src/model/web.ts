@@ -203,7 +203,7 @@ export abstract class WebModel {
     return await runMongoQuery(
       async (db: Db) => {
         return db
-          .collection(this.c_branch_secretaries)
+          .collection(this.c_committee_members)
           .find()
           .sort(sort)
       },
