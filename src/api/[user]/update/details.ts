@@ -2,6 +2,7 @@ require("dotenv").config();
 import { EHandler, Handler, Log } from "../../../utils/types";
 import { inspectBuilder, body, param } from "../../../utils/inspect";
 import model, { DBErrorCode } from "../../../model";
+import { cleanQuery } from "../../../utils/functions";
 const _ = require("lodash");
 
 // Get list of super admin emails
@@ -33,10 +34,9 @@ const profileInspector = inspectBuilder(
 );
 
 // Get account types except super admin account
-const accountT = _.remove(
-  model.user.accountTypes,
-  (o: string) => o == "superAdmin"
-);
+const accountT = _.pullAll(Object.values(model.user.accountTypes), [
+  model.user.accountTypes.superAdmin,
+]);
 
 const accountInspector = inspectBuilder(
   body("name").optional(),
@@ -51,7 +51,7 @@ const accountInspector = inspectBuilder(
     .optional()
     .isIn(accountT)
     .withMessage("accountType is invalid"),
-  body("active")
+  body("status")
     .optional()
     .isIn(["Active", "Inactive"])
     .withMessage("Account status is invalid"),
@@ -72,7 +72,14 @@ const updateProfile: Handler = async (req, res) => {
 
   // Setup Data
   const userId = req.user.userId;
-  const { name, NIC, branchName, email, contactNo } = req.body;
+  const { name, NIC, branchName, email, contactNo, status } = req.body;
+
+  // Updated by
+  const updateData: Log = {
+    name: name || req.user.name,
+    userId: req.user.userId,
+    time: new Date(),
+  };
 
   const userData = {
     name,
@@ -80,6 +87,8 @@ const updateProfile: Handler = async (req, res) => {
     branchName,
     email,
     contactNo,
+    status,
+    lastUpdatedBy: updateData,
   };
 
   // Sync model to database (filter, update, options)
@@ -90,13 +99,13 @@ const updateProfile: Handler = async (req, res) => {
   );
 
   if (error) {
-    r.pb.ISE();
-    return;
-  }
-  // If no user found
-  if (response.matchedCount == 0) {
-    r.status.NOT_FOUND().message("User not found").send();
-    return;
+    if (error.code == DBErrorCode.NOT_FOUND) {
+      r.status.NOT_FOUND().message("User not found").send();
+      return;
+    } else {
+      r.pb.ISE();
+      return;
+    }
   }
 
   r.status.OK().message("Profile updated successfully").send();
@@ -109,13 +118,12 @@ const updateProfile: Handler = async (req, res) => {
  */
 const updateUserAccount: Handler = async (req, res) => {
   const { r } = res;
-
   // Setup Data
   const updaterName = req.user.name;
   const updaterUserId = req.user.userId;
   const updaterAccountType = req.user.accountType;
   const userId = req.params.userId;
-  const { name, NIC, branchName, email, contactNo, accountType, active } =
+  const { name, NIC, branchName, email, contactNo, accountType, status } =
     req.body;
 
   const updateData: Log = {
@@ -124,17 +132,22 @@ const updateUserAccount: Handler = async (req, res) => {
     time: new Date(),
   };
 
-  const userData = {
+  const userData = cleanQuery({
     name,
     NIC,
     branchName,
     email,
     contactNo,
     accountType,
-    active,
+    status,
     lastUpdatedBy: updateData,
-  };
-
+  });
+  
+  if (Object.keys(userData).length == 1) {
+    r.status.BAD_REQ().message("No data to update").send();
+    return;
+  }
+  
   // Sync model to database (filter, update, options)
   const [error, response] = await model.user.update_UserAccount(
     {
@@ -146,15 +159,16 @@ const updateUserAccount: Handler = async (req, res) => {
   );
 
   if (error) {
-    r.pb.ISE();
-    return;
+    if (error.code == DBErrorCode.NOT_FOUND) {
+      r.status.BAD_REQ().message("User Not Found").send();
+      return;
+    } else {
+      r.pb.ISE();
+      return;
+    }
   }
 
-   // If no user found
-  if (response.matchedCount == 0) {
-    r.status.NOT_FOUND().message("User not found").send();
-    return;
-  }
+
 
   r.status.OK().message("Account updated successfully").send();
 };

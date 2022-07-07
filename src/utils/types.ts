@@ -8,7 +8,8 @@ export interface Request extends ERequest {
         accountType: string,
         name : string
         email: string,
-    }
+    },
+    fileValidationError?: string,
 }
 
 export interface Response extends EResponse {

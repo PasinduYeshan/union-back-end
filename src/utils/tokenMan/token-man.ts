@@ -8,8 +8,10 @@ function generateSecretKey(): string {
 export class TokenMan {
     private readonly _accessSecretKey: string
     private readonly _refreshSecretKey: string
+    private readonly _resetPasswordSecretKey: string
     private readonly _accessToken_validTime: string
     private readonly _refreshToken_validTime: string
+    private readonly _passwordResetToken_validTIme: string
 
     private _refreshTokenStore: Map<any, string>;
 
@@ -17,8 +19,10 @@ export class TokenMan {
         // Taking values from environment
         this._accessSecretKey = process.env.JWT_SECRET_ACCESS || generateSecretKey();
         this._refreshSecretKey = process.env.JWT_SECRET_REFRESH || generateSecretKey();
-        this._accessToken_validTime = process.env.JWT_EXP_TIME_ACCESS || '1h';
+        this._resetPasswordSecretKey = process.env.JWT_SECRET_PASSWORD || generateSecretKey();
+        this._accessToken_validTime = process.env.JWT_EXP_TIME_ACCESS || '2h';
         this._refreshToken_validTime = process.env.JWT_EXP_TIME_REFRESH || '24h';
+        this._passwordResetToken_validTIme = process.env.JWT_EXP_TIME_PASSWORD || '1h';
 
         // Create Tables
         this._refreshTokenStore = new Map<any, string>()
@@ -40,6 +44,14 @@ export class TokenMan {
         );
     }
 
+    private _signResetPasswordToken(payload: any): string {
+        return jwt.sign(
+            payload, 
+            this._resetPasswordSecretKey,
+            {expiresIn : this._passwordResetToken_validTIme}
+        )
+    }
+
     /**
      * Generate new refresh token for specific key
      * if there is a refresh token already for given key it will be replaced
@@ -59,6 +71,15 @@ export class TokenMan {
      */
     getAccessToken(payload: any): string {
         return this._signAccessToken(payload);
+    }
+
+    /**
+     * Generate new reset password token
+     * @param payload
+     * @return jwt token
+     */
+     getResetPasswordToken(payload: any): string {
+        return this._signResetPasswordToken(payload);
     }
 
     /**
@@ -107,6 +128,19 @@ export class TokenMan {
             const payload = jwt.verify(token, this._accessSecretKey)
             return [null, payload]
         } catch (e : any) {
+            if (e.name === "TokenExpiredError") {
+                return ["EXPIRED", null];
+            } else {
+                return ["ERROR", null]
+            }
+        }
+    }
+
+    verifyResetPasswordToken(token: string): [null | "EXPIRED" | "ERROR", any] {
+        try {
+            const payload: any = jwt.verify(token, this._resetPasswordSecretKey) 
+            return [null, payload]
+        } catch (e: any) {
             if (e.name === "TokenExpiredError") {
                 return ["EXPIRED", null];
             } else {

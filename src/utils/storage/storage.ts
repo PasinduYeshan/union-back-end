@@ -53,6 +53,8 @@ export const localStorage = diskStorage({
         cb(null, path.join(__dirname, "/uploads"))
     },
     filename: function (_, file, cb) {
-        cb(null, file.originalname)
+        const uKey = UUID()
+        const ext = path.extname(file.originalname)
+        cb(null,  `${uKey}${ext}`) 
     }
 })

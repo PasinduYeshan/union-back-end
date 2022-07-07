@@ -1,13 +1,17 @@
 {
-  "lastRun": "1647079046727-issues.js",
+  "lastRun": "1650726239791-branches.js",
   "migrations": [
     {
       "title": "1647062158729-user-accounts.js",
-      "timestamp": 1647086471203
+      "timestamp": 1649442759369
     },
     {
       "title": "1647079046727-issues.js",
-      "timestamp": 1647086471206
+      "timestamp": 1649442759372
+    },
+    {
+      "title": "1650726239791-branches.js",
+      "timestamp": 1650726466543
     }
   ]
 }

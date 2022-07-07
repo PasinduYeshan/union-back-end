@@ -20,6 +20,7 @@ const ServeTokenPair: Handler = async (req, res) => {
     }
 
     const payload = {
+        name : userData.name,
         userId: userData.userId,
         email: userData.email,
         accountType: userData.accountType,
